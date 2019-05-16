@@ -1,17 +1,259 @@
 webpackJsonp([0],{
 
-/***/ 131:
+/***/ 103:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ConfigurationService; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ionic_storage__ = __webpack_require__(208);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map__ = __webpack_require__(80);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map__);
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments)).next());
+    });
+};
+
+
+
+let ConfigurationService = class ConfigurationService {
+    constructor(storage) {
+        console.log('[ConfigurationService] - constructor() ::');
+        this.storage = storage;
+    }
+    get(key) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('[ConfigurationService] - get() :: ', key);
+            let result = yield this.storage.get(key);
+            return new Promise(resolve => {
+                resolve(JSON.parse(result));
+            });
+        });
+    }
+    set(key, value) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('[ConfigurationService] - set() :: ', key, value);
+            this.storage.set(key, JSON.stringify(value));
+        });
+    }
+    remove(key) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.storage.remove(key);
+        });
+    }
+};
+ConfigurationService = __decorate([
+    Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* Injectable */])(), 
+    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_1__ionic_storage__["a" /* Storage */]])
+], ConfigurationService);
+//# sourceMappingURL=configuration-service.js.map
+
+/***/ }),
+
+/***/ 104:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return SqlService; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__ = __webpack_require__(80);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(66);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ionic_native__ = __webpack_require__(51);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__config__ = __webpack_require__(81);
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+
+
+
+
+
+
+const win = window;
+let SqlService = class SqlService {
+    constructor(http, configuration) {
+        this.http = http;
+        console.log('[SqlService] - constructor() :: ');
+        this.configuration = configuration;
+        if (win.sqlitePlugin) {
+            console.log('[SqlService] - constructor() :: Creating SQLite service');
+            this.storage = new __WEBPACK_IMPORTED_MODULE_3_ionic_native__["e" /* SQLite */]();
+            Promise.all([
+                __WEBPACK_IMPORTED_MODULE_3_ionic_native__["a" /* AppVersion */].getAppName(),
+                __WEBPACK_IMPORTED_MODULE_3_ionic_native__["a" /* AppVersion */].getVersionCode(),
+                __WEBPACK_IMPORTED_MODULE_3_ionic_native__["a" /* AppVersion */].getVersionNumber(),
+            ]).then(result => {
+                console.log(`[SqlService] - constructor() :: Opening database ${result[0]}.${result[1]}.${result[2]}.db`);
+                this.storage.openDatabase({
+                    name: `${result[0]}.${result[1]}.${result[2]}.db`,
+                    location: 'default'
+                });
+            });
+        }
+        else {
+            console.log('[SqlService] - constructor() :: Creating WebSQL service');
+            this.storage = win.openDatabase(this.configuration.DATABASE_CONFIG.name, '1.0', 'database', 5 * 1024 * 1024);
+        }
+    }
+    executeSql(statement, params = []) {
+        return new Promise((resolve, reject) => {
+            try {
+                this.storage.transaction((tx) => {
+                    tx.executeSql(statement, params, (tx, res) => resolve({ tx: tx, res: res }), (tx, err) => reject({ tx: tx, err: err }));
+                }, (err) => reject({ err: err }));
+            }
+            catch (err) {
+                console.warn('[SqlService] - executeSql() :: Error executing statement', statement);
+                reject({ err: err });
+            }
+        });
+    }
+};
+SqlService = __decorate([
+    Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["I" /* Injectable */])(), 
+    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_2__angular_http__["a" /* Http */], __WEBPACK_IMPORTED_MODULE_4__config__["a" /* Config */]])
+], SqlService);
+//# sourceMappingURL=sql-service.js.map
+
+/***/ }),
+
+/***/ 105:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return OperatorService; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__ = __webpack_require__(247);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(66);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__sql_service__ = __webpack_require__(104);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__config__ = __webpack_require__(81);
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments)).next());
+    });
+};
+
+
+
+
+
+let OperatorService = class OperatorService {
+    constructor(http, configuration, storage) {
+        this.in_progress = false;
+        console.log('[OperatorService] - constructor() :: ');
+        this.http = http;
+        this.configuration = configuration;
+        this.storage = storage;
+    }
+    init() {
+        console.log('[OperatorService] - init() :: Preparing database table');
+        return this.storage.executeSql('CREATE TABLE IF NOT EXISTS operators (operator_id INTEGER PRIMARY KEY, first_name TEXT, last_name TEXT, pin_no TEXT)');
+    }
+    load() {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('[OperatorService] - load() :: Loading operators from the API');
+            if (this.in_progress) {
+                console.log('[OperatorService] - load() :: Loading is already in progress, exit.');
+                return null;
+            }
+            this.in_progress = true;
+            let result = yield this.http
+                .get(`${this.configuration.API_ENDPOINT}/operators-dep/${this.configuration.DEPARTMENT_ID}`)
+                .toPromise();
+            console.log('[OperatorService] - load() :: Operators loaded from the API');
+            console.log('[OperatorService] - load() :: Deleting operators from the cache');
+            yield this.deleteAll();
+            console.log('[OperatorService] - load() :: Operators deleted from the cache');
+            console.log('[OperatorService] - load() :: Creating operators in the cache.');
+            let promises = result.json().Operators.map((item) => __awaiter(this, void 0, void 0, function* () {
+                yield this.create(item);
+            }));
+            console.info('[OperatorService] - load() :: Operators loaded from the API and cached.');
+            this.in_progress = false;
+            return Promise.all(promises);
+        });
+    }
+    find(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let query = 'SELECT operator_id, first_name, last_name, pin_no FROM operators WHERE operator_id = (?)';
+            return this.storage.executeSql(query, [id]);
+        });
+    }
+    findByPinCode(pin_no) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log(`[OperatorService] - findByPinCode() :: Attempt to find operator with the PIN ${pin_no}`);
+            let query = 'SELECT operator_id, first_name, last_name, pin_no FROM operators WHERE pin_no = (?)';
+            return this.storage.executeSql(query, [pin_no]);
+        });
+    }
+    deleteAll() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return Promise.all([
+                this.storage.executeSql('DELETE FROM operators'),
+                this.storage.executeSql('DELETE FROM SQLITE_SEQUENCE WHERE name="operators"')
+            ]);
+        });
+    }
+    create(operator) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let query = 'INSERT INTO operators (operator_id, first_name, last_name, pin_no) VALUES (?, ?, ?, ?)';
+            return this.storage.executeSql(query, [operator.operator_id, operator.first_name, operator.last_name, operator.pin_no]);
+        });
+    }
+};
+OperatorService = __decorate([
+    Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["I" /* Injectable */])(), 
+    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_2__angular_http__["a" /* Http */], __WEBPACK_IMPORTED_MODULE_4__config__["a" /* Config */], __WEBPACK_IMPORTED_MODULE_3__sql_service__["a" /* SqlService */]])
+], OperatorService);
+//# sourceMappingURL=operator-service.js.map
+
+/***/ }),
+
+/***/ 150:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return PlantService; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__ = __webpack_require__(489);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__ = __webpack_require__(247);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(53);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ionic_angular__ = __webpack_require__(16);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__config__ = __webpack_require__(67);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__sql_service__ = __webpack_require__(91);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(66);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ionic_angular__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__config__ = __webpack_require__(81);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__sql_service__ = __webpack_require__(104);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -111,18 +353,18 @@ PlantService = __decorate([
 
 /***/ }),
 
-/***/ 132:
+/***/ 151:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return TimesheetService; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__ = __webpack_require__(90);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__ = __webpack_require__(80);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(53);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_common__ = __webpack_require__(77);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__sql_service__ = __webpack_require__(91);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__config__ = __webpack_require__(67);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(66);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_common__ = __webpack_require__(91);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__sql_service__ = __webpack_require__(104);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__config__ = __webpack_require__(81);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -229,7 +471,7 @@ TimesheetService = __decorate([
 
 /***/ }),
 
-/***/ 133:
+/***/ 158:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -286,18 +528,18 @@ class BluetoothResponse {
 
 /***/ }),
 
-/***/ 222:
+/***/ 248:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return TransactionService; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__ = __webpack_require__(90);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__ = __webpack_require__(80);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(53);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_common__ = __webpack_require__(77);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__config__ = __webpack_require__(67);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__sql_service__ = __webpack_require__(91);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(66);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_common__ = __webpack_require__(91);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__config__ = __webpack_require__(81);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__sql_service__ = __webpack_require__(104);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -444,18 +686,18 @@ TransactionService = __decorate([
 
 /***/ }),
 
-/***/ 223:
+/***/ 249:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return BluetoothService; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_native__ = __webpack_require__(36);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(16);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_map__ = __webpack_require__(90);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ionic_native_bluetooth_le__ = __webpack_require__(691);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_map__ = __webpack_require__(80);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_map__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__models_bluetooth_message__ = __webpack_require__(133);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__ionic_storage__ = __webpack_require__(184);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__models_bluetooth_message__ = __webpack_require__(158);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__ionic_storage__ = __webpack_require__(208);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -476,28 +718,32 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 
 
 let BluetoothService = class BluetoothService {
-    constructor(events, toastController, alertController, storage) {
+    constructor(events, toastController, alertController, storage, bluetoothle) {
         this.storage = storage;
+        this.bluetoothle = bluetoothle;
         this.responses = [];
-        console.log('[BluetoothService] - constructor() :: ');
+        //console.log('[BluetoothService] - constructor() :: ');
         this.events = events;
         this.toastController = toastController;
         this.alertCtrl = alertController;
         this.deviceCount = 0;
         this.connected = false;
-        this.deviceCheckInterval = setInterval(() => {
-            this.checkDevices();
-        }, 10000);
+        //this.deviceCheckInterval = setInterval(() => {
+        //this.checkDevices();
+        //},10000);        
         this.previouslyConnectedMeter = "";
         this.storage.get("previouslyConnectedMeter").then((uuid) => {
             if (uuid) {
                 this.previouslyConnectedMeter = uuid;
             }
         });
+        this.devices = [];
     }
     checkDevices() {
-        __WEBPACK_IMPORTED_MODULE_1_ionic_native__["b" /* BluetoothSerial */].isConnected().then(() => {
-            __WEBPACK_IMPORTED_MODULE_1_ionic_native__["b" /* BluetoothSerial */].list().then(devices => {
+        alert("initializing");
+        this.bluetoothle.isInitialized().then(() => {
+            alert("starting scan");
+            this.scanDevices().then((devices) => {
                 let count = devices.length;
                 if (count !== this.deviceCount) {
                     this.deviceCount = count;
@@ -508,28 +754,29 @@ let BluetoothService = class BluetoothService {
         });
     }
     connect(device) {
-        console.log('[BluetoothService] - connect() :: ');
-        __WEBPACK_IMPORTED_MODULE_1_ionic_native__["b" /* BluetoothSerial */].isConnected().then(() => this.request(), () => {
-            console.log(`[BluetoothService] - connect() :: Connecting to device ${device.name} (${device.id})`);
-            this.events.publish('meter:connecting');
-            __WEBPACK_IMPORTED_MODULE_1_ionic_native__["b" /* BluetoothSerial */].connect(device.id).subscribe(() => this.onConnect(device), failure => this.onFail(failure));
+        //console.log('[BluetoothService] - connect() :: ');
+        this.bluetoothle.isInitialized().then(() => {
+            alert("connecting");
+            this.bluetoothle.connect({ address: device.address }).subscribe((deviceInfo) => {
+                this.onConnect(device);
+            });
         });
     }
     list() {
-        console.log(`[BluetoothService] - list() :: List bound devices`);
+        //console.log(`[BluetoothService] - list() :: List bound devices`);
         this.responses = new Array();
         this.events.publish('meter:listing');
-        __WEBPACK_IMPORTED_MODULE_1_ionic_native__["b" /* BluetoothSerial */].isConnected().then(() => this.request(), () => {
-            __WEBPACK_IMPORTED_MODULE_1_ionic_native__["b" /* BluetoothSerial */].list().then(devices => {
+        this.bluetoothle.isInitialized().then(() => {
+            this.scanDevices().then((devices) => {
                 if (devices.length === 1) {
                     this.connect(devices[0]);
-                    this.storage.set("previouslyConnectedMeter", devices[0].uuid);
+                    this.storage.set("previouslyConnectedMeter", devices[0].address);
                     return;
                 }
                 else {
                     if (this.previouslyConnectedMeter) {
                         for (let device of devices) {
-                            if (device.uuid === this.previouslyConnectedMeter) {
+                            if (device.address === this.previouslyConnectedMeter) {
                                 this.connect(device);
                                 return;
                             }
@@ -539,7 +786,24 @@ let BluetoothService = class BluetoothService {
                         this.selectDevice(devices);
                     }
                 }
-            }, failure => this.onFail(failure));
+            });
+        });
+    }
+    scanDevices() {
+        return new Promise((resolve, reject) => {
+            let devices = [];
+            this.bluetoothle.startScan({}).subscribe((scanStatus) => {
+                if (scanStatus.status.status === "scanResult") {
+                    alert("device found");
+                    alert(JSON.stringify(scanStatus));
+                    devices.push({ address: scanStatus.status.address, name: scanStatus.status.name });
+                }
+            });
+            setTimeout(() => {
+                alert("stopping scan");
+                this.bluetoothle.stopScan();
+                resolve(devices);
+            }, 10000);
         });
     }
     selectDevice(devices) {
@@ -574,7 +838,7 @@ let BluetoothService = class BluetoothService {
                         if (deviceIndex) {
                             this.events.publish('meter:listingselected');
                             let device = inputsIndexed[deviceIndex];
-                            this.storage.set("previouslyConnectedMeter", device.uuid);
+                            this.storage.set("previouslyConnectedMeter", device.address);
                             this.connect(device);
                         }
                     }
@@ -615,8 +879,8 @@ let BluetoothService = class BluetoothService {
                         if (deviceIndex) {
                             let device = inputsIndexed[deviceIndex];
                             this.events.publish('meter:connecting');
-                            this.storage.set("previouslyConnectedMeter", device.uuid);
-                            __WEBPACK_IMPORTED_MODULE_1_ionic_native__["b" /* BluetoothSerial */].connect(device.id).subscribe(() => this.onConnect(device), failure => this.onFail(failure));
+                            this.storage.set("previouslyConnectedMeter", device.address);
+                            this.connect(device);
                         }
                     }
                 }
@@ -624,23 +888,23 @@ let BluetoothService = class BluetoothService {
         });
         alert.present();
     }
-    request() {
-        console.log('[BluetoothService] - request() :: Sending transaction request to the BT device');
-        this.events.publish('meter:reading');
+    request(device) {
+        //console.log('[BluetoothService] - request() :: Sending transaction request to the BT device');
+        //this.events.publish('meter:reading');
         alert("making bluetooth request");
-        __WEBPACK_IMPORTED_MODULE_1_ionic_native__["b" /* BluetoothSerial */].write((new __WEBPACK_IMPORTED_MODULE_4__models_bluetooth_message__["d" /* BluetoothTransactionRequest */]()).toString()).then(() => this.onRequestComplete(), failure => this.onFail(failure));
+        this.bluetoothle.write({ value: (new __WEBPACK_IMPORTED_MODULE_4__models_bluetooth_message__["d" /* BluetoothTransactionRequest */]()).toString(), characteristic: "", address: device.address, service: "" }).then(() => this.onRequestComplete());
     }
     requestAll() {
-        console.log('[BluetoothService] - requestAll() :: Sending transaction request to the BT device');
+        //console.log('[BluetoothService] - requestAll() :: Sending transaction request to the BT device');
     }
-    acknowledge() {
-        console.log('[BluetoothService] - acknowledge() :: Sending acknowledge to the BT device');
+    acknowledge(device) {
+        //console.log('[BluetoothService] - acknowledge() :: Sending acknowledge to the BT device');
         alert("writing message");
         alert((new __WEBPACK_IMPORTED_MODULE_4__models_bluetooth_message__["a" /* BluetoothAcknowledgement */]()).toString());
-        __WEBPACK_IMPORTED_MODULE_1_ionic_native__["b" /* BluetoothSerial */].write((new __WEBPACK_IMPORTED_MODULE_4__models_bluetooth_message__["a" /* BluetoothAcknowledgement */]()).toString()).then(() => this.onAcknowledge(), failure => this.onFail(failure));
+        this.bluetoothle.write({ value: (new __WEBPACK_IMPORTED_MODULE_4__models_bluetooth_message__["a" /* BluetoothAcknowledgement */]()).toString(), characteristic: "", address: device.address, service: "" }).then(() => this.onAcknowledge(device));
     }
     onConnect(device) {
-        console.info(`[BluetoothService] - onConnect() :: Connected to BT device ${device.id}.`);
+        //console.info(`[BluetoothService] - onConnect() :: Connected to BT device ${device.address}.`);
         let alertBox = this.alertCtrl.create({
             title: 'Success',
             subTitle: 'You are now connected to ' + device.name,
@@ -648,10 +912,10 @@ let BluetoothService = class BluetoothService {
         });
         alertBox.present();
         alert("subscribing to bluetooth channel");
-        __WEBPACK_IMPORTED_MODULE_1_ionic_native__["b" /* BluetoothSerial */].subscribe(`${__WEBPACK_IMPORTED_MODULE_4__models_bluetooth_message__["b" /* BluetoothMessage */].FRAME_BOUNDARY}`).subscribe(data => this.onData(data), failure => this.onFail(failure));
-        this.request();
+        this.bluetoothle.subscribe({ address: device.address, characteristic: `${__WEBPACK_IMPORTED_MODULE_4__models_bluetooth_message__["b" /* BluetoothMessage */].FRAME_BOUNDARY}`, service: '' }).subscribe(data => this.onData(data, device));
+        this.request(device);
     }
-    onData(data) {
+    onData(data, device) {
         alert("response received");
         alert(data);
         let response;
@@ -669,15 +933,15 @@ let BluetoothService = class BluetoothService {
         }
         // If the response is not empty, store it until we get an empty response
         if (!response.isEmpty()) {
-            console.log('[BluetoothService] - onData() :: Received data from the BT device', response);
+            //console.log('[BluetoothService] - onData() :: Received data from the BT device', response);
             this.responses.push(response);
-            this.acknowledge();
+            this.acknowledge(device);
         }
         else {
-            console.log('[BluetoothService] - onData() :: Finished receiving data from the BT device.');
+            //console.log('[BluetoothService] - onData() :: Finished receiving data from the BT device.');
             if (this.responses && this.responses.length > 0) {
-                console.log('[BluetoothService] - onData() :: Publishing the received data.', this.responses);
-                console.info('[BluetoothService] - onData() :: Publishing the received data.');
+                //console.log('[BluetoothService] - onData() :: Publishing the received data.', this.responses);
+                //console.info('[BluetoothService] - onData() :: Publishing the received data.');
                 this.events.publish('meter:data', this.responses);
             }
             this.events.publish('meter:complete');
@@ -685,12 +949,12 @@ let BluetoothService = class BluetoothService {
     }
     onRequestComplete() {
         alert("request complete");
-        console.log('[BluetoothService] - onRequestComplete() :: Transaction request sent to BT device');
+        //console.log('[BluetoothService] - onRequestComplete() :: Transaction request sent to BT device');
     }
-    onAcknowledge() {
-        console.log('[BluetoothService] - onAcknowledge() :: Acknowledge sent to BT device');
+    onAcknowledge(device) {
+        //console.log('[BluetoothService] - onAcknowledge() :: Acknowledge sent to BT device');
         alert("bluetooth acknowledged");
-        this.request();
+        this.request(device);
     }
     onFail(failure) {
         console.warn('[BluetoothService] - onFail() :: ', failure);
@@ -706,13 +970,13 @@ let BluetoothService = class BluetoothService {
 };
 BluetoothService = __decorate([
     Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* Injectable */])(), 
-    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_2_ionic_angular__["b" /* Events */], __WEBPACK_IMPORTED_MODULE_2_ionic_angular__["i" /* ToastController */], __WEBPACK_IMPORTED_MODULE_2_ionic_angular__["a" /* AlertController */], __WEBPACK_IMPORTED_MODULE_5__ionic_storage__["a" /* Storage */]])
+    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_2_ionic_angular__["b" /* Events */], __WEBPACK_IMPORTED_MODULE_2_ionic_angular__["i" /* ToastController */], __WEBPACK_IMPORTED_MODULE_2_ionic_angular__["a" /* AlertController */], __WEBPACK_IMPORTED_MODULE_5__ionic_storage__["a" /* Storage */], __WEBPACK_IMPORTED_MODULE_1__ionic_native_bluetooth_le__["a" /* BluetoothLE */]])
 ], BluetoothService);
 //# sourceMappingURL=bluetooth-service.js.map
 
 /***/ }),
 
-/***/ 240:
+/***/ 274:
 /***/ (function(module, exports) {
 
 function webpackEmptyAsyncContext(req) {
@@ -725,21 +989,21 @@ function webpackEmptyAsyncContext(req) {
 webpackEmptyAsyncContext.keys = function() { return []; };
 webpackEmptyAsyncContext.resolve = webpackEmptyAsyncContext;
 module.exports = webpackEmptyAsyncContext;
-webpackEmptyAsyncContext.id = 240;
+webpackEmptyAsyncContext.id = 274;
 
 /***/ }),
 
-/***/ 486:
+/***/ 522:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return LoginPage; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(14);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(16);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__tabs_tabs__ = __webpack_require__(487);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__providers_operator_service__ = __webpack_require__(92);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_configuration_service__ = __webpack_require__(89);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__tabs_tabs__ = __webpack_require__(523);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__providers_operator_service__ = __webpack_require__(105);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_configuration_service__ = __webpack_require__(103);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -812,15 +1076,15 @@ LoginPage = __decorate([
 
 /***/ }),
 
-/***/ 487:
+/***/ 523:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return TabsPage; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(16);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__transaction_transaction__ = __webpack_require__(488);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__timesheet_timesheet__ = __webpack_require__(490);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__transaction_transaction__ = __webpack_require__(524);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__timesheet_timesheet__ = __webpack_require__(550);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -851,21 +1115,21 @@ TabsPage = __decorate([
 
 /***/ }),
 
-/***/ 488:
+/***/ 524:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return CreateTransactionPage; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(14);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(16);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__providers_configuration_service__ = __webpack_require__(89);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__providers_plant_service__ = __webpack_require__(131);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_transaction_service__ = __webpack_require__(222);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__providers_operator_service__ = __webpack_require__(92);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__providers_timesheet_service__ = __webpack_require__(132);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__providers_bluetooth_service__ = __webpack_require__(223);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_ionic_native__ = __webpack_require__(36);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__providers_configuration_service__ = __webpack_require__(103);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__providers_plant_service__ = __webpack_require__(150);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_transaction_service__ = __webpack_require__(248);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__providers_operator_service__ = __webpack_require__(105);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__providers_timesheet_service__ = __webpack_require__(151);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__providers_bluetooth_service__ = __webpack_require__(249);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_ionic_native__ = __webpack_require__(51);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1047,7 +1311,7 @@ let CreateTransactionPage = class CreateTransactionPage {
             odometer: '-1',
             local_timestamp: timestamp
         };
-        let location_request = __WEBPACK_IMPORTED_MODULE_9_ionic_native__["c" /* Geolocation */].getCurrentPosition({ timeout: 10000 });
+        let location_request = __WEBPACK_IMPORTED_MODULE_9_ionic_native__["b" /* Geolocation */].getCurrentPosition({ timeout: 10000 });
         location_request.then((response) => {
             console.log('[CreateTransactionPage] - onSubmit() :: Got geolocation data, creating transaction ', data);
             transaction.long = response.coords.longitude;
@@ -1061,7 +1325,7 @@ let CreateTransactionPage = class CreateTransactionPage {
         });
     }
     getGPS() {
-        let location_request = __WEBPACK_IMPORTED_MODULE_9_ionic_native__["c" /* Geolocation */].getCurrentPosition({ timeout: 10000 });
+        let location_request = __WEBPACK_IMPORTED_MODULE_9_ionic_native__["b" /* Geolocation */].getCurrentPosition({ timeout: 10000 });
         location_request.then((response) => {
             let res = JSON.stringify(response);
             console.log(response);
@@ -1109,18 +1373,18 @@ CreateTransactionPage = __decorate([
 
 /***/ }),
 
-/***/ 490:
+/***/ 550:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return CreateTimesheetPage; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(14);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(16);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__providers_plant_service__ = __webpack_require__(131);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__providers_operator_service__ = __webpack_require__(92);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_timesheet_service__ = __webpack_require__(132);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__providers_configuration_service__ = __webpack_require__(89);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__providers_plant_service__ = __webpack_require__(150);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__providers_operator_service__ = __webpack_require__(105);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_timesheet_service__ = __webpack_require__(151);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__providers_configuration_service__ = __webpack_require__(103);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1230,13 +1494,13 @@ CreateTimesheetPage = __decorate([
 
 /***/ }),
 
-/***/ 491:
+/***/ 551:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return SettingsPage; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(21);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1280,13 +1544,13 @@ SettingsPage = __decorate([
 
 /***/ }),
 
-/***/ 492:
+/***/ 552:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_platform_browser_dynamic__ = __webpack_require__(493);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__app_module__ = __webpack_require__(591);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_platform_browser_dynamic__ = __webpack_require__(553);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__app_module__ = __webpack_require__(646);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_core__ = __webpack_require__(0);
 
 
@@ -1297,32 +1561,32 @@ Object(__WEBPACK_IMPORTED_MODULE_0__angular_platform_browser_dynamic__["a" /* pl
 
 /***/ }),
 
-/***/ 591:
+/***/ 646:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return AppModule; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_http__ = __webpack_require__(53);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ionic_storage__ = __webpack_require__(184);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ionic_angular__ = __webpack_require__(16);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_ionic_native__ = __webpack_require__(36);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__app_component__ = __webpack_require__(637);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__pages_login_login__ = __webpack_require__(486);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__pages_settings_settings__ = __webpack_require__(491);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__pages_tabs_tabs__ = __webpack_require__(487);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__pages_timesheet_timesheet__ = __webpack_require__(490);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__pages_transaction_transaction__ = __webpack_require__(488);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__pipes__ = __webpack_require__(639);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__config__ = __webpack_require__(67);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__providers_configuration_service__ = __webpack_require__(89);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__providers_operator_service__ = __webpack_require__(92);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__providers_plant_service__ = __webpack_require__(131);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__providers_timesheet_service__ = __webpack_require__(132);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__providers_transaction_service__ = __webpack_require__(222);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__providers_sql_service__ = __webpack_require__(91);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_19__providers_bluetooth_service__ = __webpack_require__(223);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_20__providers_rollbar_service__ = __webpack_require__(640);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_http__ = __webpack_require__(66);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ionic_storage__ = __webpack_require__(208);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ionic_angular__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_ionic_native__ = __webpack_require__(51);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__app_component__ = __webpack_require__(690);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__pages_login_login__ = __webpack_require__(522);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__pages_settings_settings__ = __webpack_require__(551);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__pages_tabs_tabs__ = __webpack_require__(523);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__pages_timesheet_timesheet__ = __webpack_require__(550);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__pages_transaction_transaction__ = __webpack_require__(524);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__pipes__ = __webpack_require__(974);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__config__ = __webpack_require__(81);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__providers_configuration_service__ = __webpack_require__(103);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__providers_operator_service__ = __webpack_require__(105);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__providers_plant_service__ = __webpack_require__(150);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__providers_timesheet_service__ = __webpack_require__(151);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__providers_transaction_service__ = __webpack_require__(248);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__providers_sql_service__ = __webpack_require__(104);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_19__providers_bluetooth_service__ = __webpack_require__(249);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_20__providers_rollbar_service__ = __webpack_require__(975);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1392,8 +1656,8 @@ AppModule = __decorate([
             __WEBPACK_IMPORTED_MODULE_18__providers_sql_service__["a" /* SqlService */],
             __WEBPACK_IMPORTED_MODULE_12__config__["a" /* Config */],
             __WEBPACK_IMPORTED_MODULE_2__ionic_storage__["a" /* Storage */],
-            __WEBPACK_IMPORTED_MODULE_4_ionic_native__["f" /* SQLite */],
-            __WEBPACK_IMPORTED_MODULE_4_ionic_native__["c" /* Geolocation */],
+            __WEBPACK_IMPORTED_MODULE_4_ionic_native__["e" /* SQLite */],
+            __WEBPACK_IMPORTED_MODULE_4_ionic_native__["b" /* Geolocation */],
             __WEBPACK_IMPORTED_MODULE_19__providers_bluetooth_service__["a" /* BluetoothService */],
             { provide: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* ErrorHandler */], useClass: __WEBPACK_IMPORTED_MODULE_20__providers_rollbar_service__["a" /* RollbarErrorHandler */] }
         ]
@@ -1404,22 +1668,22 @@ AppModule = __decorate([
 
 /***/ }),
 
-/***/ 637:
+/***/ 690:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return FuelITApp; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(16);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_native__ = __webpack_require__(36);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__pages_login_login__ = __webpack_require__(486);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__pages_settings_settings__ = __webpack_require__(491);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_plant_service__ = __webpack_require__(131);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__providers_operator_service__ = __webpack_require__(92);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__providers_configuration_service__ = __webpack_require__(89);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__providers_transaction_service__ = __webpack_require__(222);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__providers_timesheet_service__ = __webpack_require__(132);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__providers_bluetooth_service__ = __webpack_require__(223);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_native__ = __webpack_require__(51);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__pages_login_login__ = __webpack_require__(522);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__pages_settings_settings__ = __webpack_require__(551);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_plant_service__ = __webpack_require__(150);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__providers_operator_service__ = __webpack_require__(105);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__providers_configuration_service__ = __webpack_require__(103);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__providers_transaction_service__ = __webpack_require__(248);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__providers_timesheet_service__ = __webpack_require__(151);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__providers_bluetooth_service__ = __webpack_require__(249);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1470,9 +1734,9 @@ let FuelITApp = class FuelITApp {
             this.settings(event);
         });
         platform.ready().then(() => {
-            __WEBPACK_IMPORTED_MODULE_2_ionic_native__["h" /* StatusBar */].styleDefault();
-            __WEBPACK_IMPORTED_MODULE_2_ionic_native__["g" /* Splashscreen */].hide();
-            __WEBPACK_IMPORTED_MODULE_2_ionic_native__["e" /* Rollbar */].init();
+            __WEBPACK_IMPORTED_MODULE_2_ionic_native__["g" /* StatusBar */].styleDefault();
+            __WEBPACK_IMPORTED_MODULE_2_ionic_native__["f" /* Splashscreen */].hide();
+            __WEBPACK_IMPORTED_MODULE_2_ionic_native__["d" /* Rollbar */].init();
             console.log('[FuelITApp] - constructor() :: Detecting platforms:', platform.platforms());
             console.log('[FuelITApp] - constructor() :: Preparing services.');
             Promise.all([
@@ -1490,10 +1754,10 @@ let FuelITApp = class FuelITApp {
             platform.resume.subscribe(() => {
                 console.log('[FuelITApp] - constructor() :: App resumed');
             });
-            __WEBPACK_IMPORTED_MODULE_2_ionic_native__["d" /* Network */].onConnect().subscribe(() => {
+            __WEBPACK_IMPORTED_MODULE_2_ionic_native__["c" /* Network */].onConnect().subscribe(() => {
                 this.onNetworkConnected();
             });
-            __WEBPACK_IMPORTED_MODULE_2_ionic_native__["d" /* Network */].onDisconnect().subscribe(() => {
+            __WEBPACK_IMPORTED_MODULE_2_ionic_native__["c" /* Network */].onDisconnect().subscribe(() => {
                 this.onNetworkDisconnected();
             });
         });
@@ -1567,69 +1831,7 @@ FuelITApp = __decorate([
 
 /***/ }),
 
-/***/ 639:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return CapitalizePipe; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-
-let CapitalizePipe = class CapitalizePipe {
-    transform(value) {
-        if (value) {
-            return value.charAt(0).toUpperCase() + value.slice(1);
-        }
-        return value;
-    }
-};
-CapitalizePipe = __decorate([
-    Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Y" /* Pipe */])({ name: 'capitalize' }), 
-    __metadata('design:paramtypes', [])
-], CapitalizePipe);
-//# sourceMappingURL=pipes.js.map
-
-/***/ }),
-
-/***/ 640:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return RollbarErrorHandler; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-
-let RollbarErrorHandler = class RollbarErrorHandler {
-    handleError(err) {
-        console.error(err);
-        throw Error(err);
-    }
-};
-RollbarErrorHandler = __decorate([
-    Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* Injectable */])(), 
-    __metadata('design:paramtypes', [])
-], RollbarErrorHandler);
-//# sourceMappingURL=rollbar-service.js.map
-
-/***/ }),
-
-/***/ 67:
+/***/ 81:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1665,15 +1867,12 @@ Config = __decorate([
 
 /***/ }),
 
-/***/ 89:
+/***/ 974:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ConfigurationService; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return CapitalizePipe; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ionic_storage__ = __webpack_require__(184);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map__ = __webpack_require__(90);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map__);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1683,229 +1882,52 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments)).next());
-    });
-};
 
-
-
-let ConfigurationService = class ConfigurationService {
-    constructor(storage) {
-        console.log('[ConfigurationService] - constructor() ::');
-        this.storage = storage;
-    }
-    get(key) {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log('[ConfigurationService] - get() :: ', key);
-            let result = yield this.storage.get(key);
-            return new Promise(resolve => {
-                resolve(JSON.parse(result));
-            });
-        });
-    }
-    set(key, value) {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log('[ConfigurationService] - set() :: ', key, value);
-            this.storage.set(key, JSON.stringify(value));
-        });
-    }
-    remove(key) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return this.storage.remove(key);
-        });
+let CapitalizePipe = class CapitalizePipe {
+    transform(value) {
+        if (value) {
+            return value.charAt(0).toUpperCase() + value.slice(1);
+        }
+        return value;
     }
 };
-ConfigurationService = __decorate([
+CapitalizePipe = __decorate([
+    Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Y" /* Pipe */])({ name: 'capitalize' }), 
+    __metadata('design:paramtypes', [])
+], CapitalizePipe);
+//# sourceMappingURL=pipes.js.map
+
+/***/ }),
+
+/***/ 975:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return RollbarErrorHandler; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+
+let RollbarErrorHandler = class RollbarErrorHandler {
+    handleError(err) {
+        console.error(err);
+        throw Error(err);
+    }
+};
+RollbarErrorHandler = __decorate([
     Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* Injectable */])(), 
-    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_1__ionic_storage__["a" /* Storage */]])
-], ConfigurationService);
-//# sourceMappingURL=configuration-service.js.map
-
-/***/ }),
-
-/***/ 91:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return SqlService; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__ = __webpack_require__(90);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(53);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ionic_native__ = __webpack_require__(36);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__config__ = __webpack_require__(67);
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-
-
-
-
-
-
-const win = window;
-let SqlService = class SqlService {
-    constructor(http, configuration) {
-        this.http = http;
-        console.log('[SqlService] - constructor() :: ');
-        this.configuration = configuration;
-        if (win.sqlitePlugin) {
-            console.log('[SqlService] - constructor() :: Creating SQLite service');
-            this.storage = new __WEBPACK_IMPORTED_MODULE_3_ionic_native__["f" /* SQLite */]();
-            Promise.all([
-                __WEBPACK_IMPORTED_MODULE_3_ionic_native__["a" /* AppVersion */].getAppName(),
-                __WEBPACK_IMPORTED_MODULE_3_ionic_native__["a" /* AppVersion */].getVersionCode(),
-                __WEBPACK_IMPORTED_MODULE_3_ionic_native__["a" /* AppVersion */].getVersionNumber(),
-            ]).then(result => {
-                console.log(`[SqlService] - constructor() :: Opening database ${result[0]}.${result[1]}.${result[2]}.db`);
-                this.storage.openDatabase({
-                    name: `${result[0]}.${result[1]}.${result[2]}.db`,
-                    location: 'default'
-                });
-            });
-        }
-        else {
-            console.log('[SqlService] - constructor() :: Creating WebSQL service');
-            this.storage = win.openDatabase(this.configuration.DATABASE_CONFIG.name, '1.0', 'database', 5 * 1024 * 1024);
-        }
-    }
-    executeSql(statement, params = []) {
-        return new Promise((resolve, reject) => {
-            try {
-                this.storage.transaction((tx) => {
-                    tx.executeSql(statement, params, (tx, res) => resolve({ tx: tx, res: res }), (tx, err) => reject({ tx: tx, err: err }));
-                }, (err) => reject({ err: err }));
-            }
-            catch (err) {
-                console.warn('[SqlService] - executeSql() :: Error executing statement', statement);
-                reject({ err: err });
-            }
-        });
-    }
-};
-SqlService = __decorate([
-    Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["I" /* Injectable */])(), 
-    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_2__angular_http__["a" /* Http */], __WEBPACK_IMPORTED_MODULE_4__config__["a" /* Config */]])
-], SqlService);
-//# sourceMappingURL=sql-service.js.map
-
-/***/ }),
-
-/***/ 92:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return OperatorService; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__ = __webpack_require__(489);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(53);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__sql_service__ = __webpack_require__(91);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__config__ = __webpack_require__(67);
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments)).next());
-    });
-};
-
-
-
-
-
-let OperatorService = class OperatorService {
-    constructor(http, configuration, storage) {
-        this.in_progress = false;
-        console.log('[OperatorService] - constructor() :: ');
-        this.http = http;
-        this.configuration = configuration;
-        this.storage = storage;
-    }
-    init() {
-        console.log('[OperatorService] - init() :: Preparing database table');
-        return this.storage.executeSql('CREATE TABLE IF NOT EXISTS operators (operator_id INTEGER PRIMARY KEY, first_name TEXT, last_name TEXT, pin_no TEXT)');
-    }
-    load() {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log('[OperatorService] - load() :: Loading operators from the API');
-            if (this.in_progress) {
-                console.log('[OperatorService] - load() :: Loading is already in progress, exit.');
-                return null;
-            }
-            this.in_progress = true;
-            let result = yield this.http
-                .get(`${this.configuration.API_ENDPOINT}/operators-dep/${this.configuration.DEPARTMENT_ID}`)
-                .toPromise();
-            console.log('[OperatorService] - load() :: Operators loaded from the API');
-            console.log('[OperatorService] - load() :: Deleting operators from the cache');
-            yield this.deleteAll();
-            console.log('[OperatorService] - load() :: Operators deleted from the cache');
-            console.log('[OperatorService] - load() :: Creating operators in the cache.');
-            let promises = result.json().Operators.map((item) => __awaiter(this, void 0, void 0, function* () {
-                yield this.create(item);
-            }));
-            console.info('[OperatorService] - load() :: Operators loaded from the API and cached.');
-            this.in_progress = false;
-            return Promise.all(promises);
-        });
-    }
-    find(id) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let query = 'SELECT operator_id, first_name, last_name, pin_no FROM operators WHERE operator_id = (?)';
-            return this.storage.executeSql(query, [id]);
-        });
-    }
-    findByPinCode(pin_no) {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log(`[OperatorService] - findByPinCode() :: Attempt to find operator with the PIN ${pin_no}`);
-            let query = 'SELECT operator_id, first_name, last_name, pin_no FROM operators WHERE pin_no = (?)';
-            return this.storage.executeSql(query, [pin_no]);
-        });
-    }
-    deleteAll() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return Promise.all([
-                this.storage.executeSql('DELETE FROM operators'),
-                this.storage.executeSql('DELETE FROM SQLITE_SEQUENCE WHERE name="operators"')
-            ]);
-        });
-    }
-    create(operator) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let query = 'INSERT INTO operators (operator_id, first_name, last_name, pin_no) VALUES (?, ?, ?, ?)';
-            return this.storage.executeSql(query, [operator.operator_id, operator.first_name, operator.last_name, operator.pin_no]);
-        });
-    }
-};
-OperatorService = __decorate([
-    Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["I" /* Injectable */])(), 
-    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_2__angular_http__["a" /* Http */], __WEBPACK_IMPORTED_MODULE_4__config__["a" /* Config */], __WEBPACK_IMPORTED_MODULE_3__sql_service__["a" /* SqlService */]])
-], OperatorService);
-//# sourceMappingURL=operator-service.js.map
+    __metadata('design:paramtypes', [])
+], RollbarErrorHandler);
+//# sourceMappingURL=rollbar-service.js.map
 
 /***/ })
 
-},[492]);
+},[552]);
 //# sourceMappingURL=main.js.map
