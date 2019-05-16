@@ -556,20 +556,22 @@ let BluetoothService = class BluetoothService {
         return new Promise((resolve, reject) => {
             let devices = [];
             bluetoothle.startScan((scanStatus) => {
-                alert("new scan status");
-                alert(JSON.stringify(scanStatus));
+                //alert("new scan status");
+                //alert(JSON.stringify(scanStatus));
                 if (scanStatus.status === "scanResult") {
                     alert("device found");
                     let newDevice = { address: scanStatus.address, name: scanStatus.name };
-                    alert(JSON.stringify(newDevice));
-                    devices.push(newDevice);
+                    if (newDevice.name) {
+                        //alert(JSON.stringify(newDevice))
+                        devices.push(newDevice);
+                    }
                 }
             }, (failure) => this.onFail(failure), {});
             setTimeout(() => {
                 alert("stopping scan");
                 bluetoothle.stopScan();
                 resolve(devices);
-            }, 20000);
+            }, 5000);
         });
     }
     selectDevice(devices) {
@@ -723,6 +725,7 @@ let BluetoothService = class BluetoothService {
         this.request(device);
     }
     onFail(failure) {
+        alert(JSON.stringify(failure));
         console.warn('[BluetoothService] - onFail() :: ', failure);
         this.events.publish('meter:complete');
         let toast = this.toastController.create({
