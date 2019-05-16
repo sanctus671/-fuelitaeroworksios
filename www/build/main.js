@@ -1,259 +1,17 @@
 webpackJsonp([0],{
 
-/***/ 103:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ConfigurationService; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ionic_storage__ = __webpack_require__(208);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map__ = __webpack_require__(80);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map__);
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments)).next());
-    });
-};
-
-
-
-let ConfigurationService = class ConfigurationService {
-    constructor(storage) {
-        console.log('[ConfigurationService] - constructor() ::');
-        this.storage = storage;
-    }
-    get(key) {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log('[ConfigurationService] - get() :: ', key);
-            let result = yield this.storage.get(key);
-            return new Promise(resolve => {
-                resolve(JSON.parse(result));
-            });
-        });
-    }
-    set(key, value) {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log('[ConfigurationService] - set() :: ', key, value);
-            this.storage.set(key, JSON.stringify(value));
-        });
-    }
-    remove(key) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return this.storage.remove(key);
-        });
-    }
-};
-ConfigurationService = __decorate([
-    Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* Injectable */])(), 
-    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_1__ionic_storage__["a" /* Storage */]])
-], ConfigurationService);
-//# sourceMappingURL=configuration-service.js.map
-
-/***/ }),
-
-/***/ 104:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return SqlService; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__ = __webpack_require__(80);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(66);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ionic_native__ = __webpack_require__(51);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__config__ = __webpack_require__(81);
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-
-
-
-
-
-
-const win = window;
-let SqlService = class SqlService {
-    constructor(http, configuration) {
-        this.http = http;
-        console.log('[SqlService] - constructor() :: ');
-        this.configuration = configuration;
-        if (win.sqlitePlugin) {
-            console.log('[SqlService] - constructor() :: Creating SQLite service');
-            this.storage = new __WEBPACK_IMPORTED_MODULE_3_ionic_native__["e" /* SQLite */]();
-            Promise.all([
-                __WEBPACK_IMPORTED_MODULE_3_ionic_native__["a" /* AppVersion */].getAppName(),
-                __WEBPACK_IMPORTED_MODULE_3_ionic_native__["a" /* AppVersion */].getVersionCode(),
-                __WEBPACK_IMPORTED_MODULE_3_ionic_native__["a" /* AppVersion */].getVersionNumber(),
-            ]).then(result => {
-                console.log(`[SqlService] - constructor() :: Opening database ${result[0]}.${result[1]}.${result[2]}.db`);
-                this.storage.openDatabase({
-                    name: `${result[0]}.${result[1]}.${result[2]}.db`,
-                    location: 'default'
-                });
-            });
-        }
-        else {
-            console.log('[SqlService] - constructor() :: Creating WebSQL service');
-            this.storage = win.openDatabase(this.configuration.DATABASE_CONFIG.name, '1.0', 'database', 5 * 1024 * 1024);
-        }
-    }
-    executeSql(statement, params = []) {
-        return new Promise((resolve, reject) => {
-            try {
-                this.storage.transaction((tx) => {
-                    tx.executeSql(statement, params, (tx, res) => resolve({ tx: tx, res: res }), (tx, err) => reject({ tx: tx, err: err }));
-                }, (err) => reject({ err: err }));
-            }
-            catch (err) {
-                console.warn('[SqlService] - executeSql() :: Error executing statement', statement);
-                reject({ err: err });
-            }
-        });
-    }
-};
-SqlService = __decorate([
-    Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["I" /* Injectable */])(), 
-    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_2__angular_http__["a" /* Http */], __WEBPACK_IMPORTED_MODULE_4__config__["a" /* Config */]])
-], SqlService);
-//# sourceMappingURL=sql-service.js.map
-
-/***/ }),
-
-/***/ 105:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return OperatorService; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__ = __webpack_require__(247);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(66);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__sql_service__ = __webpack_require__(104);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__config__ = __webpack_require__(81);
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments)).next());
-    });
-};
-
-
-
-
-
-let OperatorService = class OperatorService {
-    constructor(http, configuration, storage) {
-        this.in_progress = false;
-        console.log('[OperatorService] - constructor() :: ');
-        this.http = http;
-        this.configuration = configuration;
-        this.storage = storage;
-    }
-    init() {
-        console.log('[OperatorService] - init() :: Preparing database table');
-        return this.storage.executeSql('CREATE TABLE IF NOT EXISTS operators (operator_id INTEGER PRIMARY KEY, first_name TEXT, last_name TEXT, pin_no TEXT)');
-    }
-    load() {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log('[OperatorService] - load() :: Loading operators from the API');
-            if (this.in_progress) {
-                console.log('[OperatorService] - load() :: Loading is already in progress, exit.');
-                return null;
-            }
-            this.in_progress = true;
-            let result = yield this.http
-                .get(`${this.configuration.API_ENDPOINT}/operators-dep/${this.configuration.DEPARTMENT_ID}`)
-                .toPromise();
-            console.log('[OperatorService] - load() :: Operators loaded from the API');
-            console.log('[OperatorService] - load() :: Deleting operators from the cache');
-            yield this.deleteAll();
-            console.log('[OperatorService] - load() :: Operators deleted from the cache');
-            console.log('[OperatorService] - load() :: Creating operators in the cache.');
-            let promises = result.json().Operators.map((item) => __awaiter(this, void 0, void 0, function* () {
-                yield this.create(item);
-            }));
-            console.info('[OperatorService] - load() :: Operators loaded from the API and cached.');
-            this.in_progress = false;
-            return Promise.all(promises);
-        });
-    }
-    find(id) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let query = 'SELECT operator_id, first_name, last_name, pin_no FROM operators WHERE operator_id = (?)';
-            return this.storage.executeSql(query, [id]);
-        });
-    }
-    findByPinCode(pin_no) {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log(`[OperatorService] - findByPinCode() :: Attempt to find operator with the PIN ${pin_no}`);
-            let query = 'SELECT operator_id, first_name, last_name, pin_no FROM operators WHERE pin_no = (?)';
-            return this.storage.executeSql(query, [pin_no]);
-        });
-    }
-    deleteAll() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return Promise.all([
-                this.storage.executeSql('DELETE FROM operators'),
-                this.storage.executeSql('DELETE FROM SQLITE_SEQUENCE WHERE name="operators"')
-            ]);
-        });
-    }
-    create(operator) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let query = 'INSERT INTO operators (operator_id, first_name, last_name, pin_no) VALUES (?, ?, ?, ?)';
-            return this.storage.executeSql(query, [operator.operator_id, operator.first_name, operator.last_name, operator.pin_no]);
-        });
-    }
-};
-OperatorService = __decorate([
-    Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["I" /* Injectable */])(), 
-    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_2__angular_http__["a" /* Http */], __WEBPACK_IMPORTED_MODULE_4__config__["a" /* Config */], __WEBPACK_IMPORTED_MODULE_3__sql_service__["a" /* SqlService */]])
-], OperatorService);
-//# sourceMappingURL=operator-service.js.map
-
-/***/ }),
-
-/***/ 150:
+/***/ 131:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return PlantService; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__ = __webpack_require__(247);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__ = __webpack_require__(489);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(66);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ionic_angular__ = __webpack_require__(21);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__config__ = __webpack_require__(81);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__sql_service__ = __webpack_require__(104);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(53);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ionic_angular__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__config__ = __webpack_require__(67);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__sql_service__ = __webpack_require__(91);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -353,18 +111,18 @@ PlantService = __decorate([
 
 /***/ }),
 
-/***/ 151:
+/***/ 132:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return TimesheetService; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__ = __webpack_require__(80);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__ = __webpack_require__(90);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(66);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_common__ = __webpack_require__(91);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__sql_service__ = __webpack_require__(104);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__config__ = __webpack_require__(81);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(53);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_common__ = __webpack_require__(77);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__sql_service__ = __webpack_require__(91);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__config__ = __webpack_require__(67);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -471,22 +229,29 @@ TimesheetService = __decorate([
 
 /***/ }),
 
-/***/ 158:
+/***/ 133:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 class BluetoothMessage {
 }
-/* harmony export (immutable) */ __webpack_exports__["b"] = BluetoothMessage;
+/* unused harmony export BluetoothMessage */
 
 BluetoothMessage.ESCAPE = String.fromCharCode(0x0A);
 BluetoothMessage.FRAME_BOUNDARY = String.fromCharCode(0x1C);
+class BluetoothUUID {
+}
+/* harmony export (immutable) */ __webpack_exports__["d"] = BluetoothUUID;
+
+BluetoothUUID.SERVICE = "569a1101-b87f-490c-92cb-11ba5ea5167c";
+BluetoothUUID.READ = "569a2001-b87f-490c-92cb-11ba5ea5167c";
+BluetoothUUID.WRITE = "569a2000-b87f-490c-92cb-11ba5ea5167c";
 class BluetoothTransactionRequest {
     toString() {
         return `${BluetoothMessage.FRAME_BOUNDARY}{"type":"transactionRequest"}${BluetoothMessage.FRAME_BOUNDARY}`;
     }
 }
-/* harmony export (immutable) */ __webpack_exports__["d"] = BluetoothTransactionRequest;
+/* harmony export (immutable) */ __webpack_exports__["c"] = BluetoothTransactionRequest;
 
 class BluetoothAcknowledgement {
     toString() {
@@ -522,24 +287,24 @@ class BluetoothResponse {
         return Object.keys(this.data).length == 0;
     }
 }
-/* harmony export (immutable) */ __webpack_exports__["c"] = BluetoothResponse;
+/* harmony export (immutable) */ __webpack_exports__["b"] = BluetoothResponse;
 
 //# sourceMappingURL=bluetooth-message.js.map
 
 /***/ }),
 
-/***/ 248:
+/***/ 222:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return TransactionService; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__ = __webpack_require__(80);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__ = __webpack_require__(90);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(66);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_common__ = __webpack_require__(91);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__config__ = __webpack_require__(81);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__sql_service__ = __webpack_require__(104);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(53);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_common__ = __webpack_require__(77);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__config__ = __webpack_require__(67);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__sql_service__ = __webpack_require__(91);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -686,18 +451,17 @@ TransactionService = __decorate([
 
 /***/ }),
 
-/***/ 249:
+/***/ 223:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return BluetoothService; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ionic_native_bluetooth_le__ = __webpack_require__(691);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(21);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_map__ = __webpack_require__(80);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_map__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__models_bluetooth_message__ = __webpack_require__(158);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__ionic_storage__ = __webpack_require__(208);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map__ = __webpack_require__(90);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__ = __webpack_require__(133);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__ionic_storage__ = __webpack_require__(184);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -716,11 +480,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 
 
 
-
 let BluetoothService = class BluetoothService {
-    constructor(events, toastController, alertController, storage, bluetoothle) {
+    constructor(events, toastController, alertController, storage) {
         this.storage = storage;
-        this.bluetoothle = bluetoothle;
         this.responses = [];
         //console.log('[BluetoothService] - constructor() :: ');
         this.events = events;
@@ -741,7 +503,7 @@ let BluetoothService = class BluetoothService {
     }
     checkDevices() {
         alert("initializing");
-        this.bluetoothle.isInitialized().then(() => {
+        bluetoothle.isInitialized(() => {
             alert("starting scan");
             this.scanDevices().then((devices) => {
                 let count = devices.length;
@@ -755,18 +517,19 @@ let BluetoothService = class BluetoothService {
     }
     connect(device) {
         //console.log('[BluetoothService] - connect() :: ');
-        this.bluetoothle.isInitialized().then(() => {
+        bluetoothle.isInitialized(() => {
             alert("connecting");
-            this.bluetoothle.connect({ address: device.address }).subscribe((deviceInfo) => {
+            this.events.publish('meter:connecting');
+            bluetoothle.connect((deviceInfo) => {
                 this.onConnect(device);
-            });
+            }, (failure) => this.onFail(failure), { address: device.address });
         });
     }
     list() {
         //console.log(`[BluetoothService] - list() :: List bound devices`);
         this.responses = new Array();
         this.events.publish('meter:listing');
-        this.bluetoothle.isInitialized().then(() => {
+        bluetoothle.initialize(() => {
             this.scanDevices().then((devices) => {
                 if (devices.length === 1) {
                     this.connect(devices[0]);
@@ -787,23 +550,23 @@ let BluetoothService = class BluetoothService {
                     }
                 }
             });
-        });
+        }, { request: true });
     }
     scanDevices() {
         return new Promise((resolve, reject) => {
             let devices = [];
-            this.bluetoothle.startScan({}).subscribe((scanStatus) => {
+            bluetoothle.startScan((scanStatus) => {
                 if (scanStatus.status.status === "scanResult") {
                     alert("device found");
                     alert(JSON.stringify(scanStatus));
                     devices.push({ address: scanStatus.status.address, name: scanStatus.status.name });
                 }
-            });
+            }, (failure) => this.onFail(failure), {});
             setTimeout(() => {
                 alert("stopping scan");
-                this.bluetoothle.stopScan();
+                bluetoothle.stopScan();
                 resolve(devices);
-            }, 10000);
+            }, 5000);
         });
     }
     selectDevice(devices) {
@@ -890,9 +653,9 @@ let BluetoothService = class BluetoothService {
     }
     request(device) {
         //console.log('[BluetoothService] - request() :: Sending transaction request to the BT device');
-        //this.events.publish('meter:reading');
+        this.events.publish('meter:reading');
         alert("making bluetooth request");
-        this.bluetoothle.write({ value: (new __WEBPACK_IMPORTED_MODULE_4__models_bluetooth_message__["d" /* BluetoothTransactionRequest */]()).toString(), characteristic: "", address: device.address, service: "" }).then(() => this.onRequestComplete());
+        bluetoothle.write(() => this.onRequestComplete(), (failure) => this.onFail(failure), { value: (new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["c" /* BluetoothTransactionRequest */]()).toString(), characteristic: __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].WRITE, address: device.address, service: __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE });
     }
     requestAll() {
         //console.log('[BluetoothService] - requestAll() :: Sending transaction request to the BT device');
@@ -900,8 +663,8 @@ let BluetoothService = class BluetoothService {
     acknowledge(device) {
         //console.log('[BluetoothService] - acknowledge() :: Sending acknowledge to the BT device');
         alert("writing message");
-        alert((new __WEBPACK_IMPORTED_MODULE_4__models_bluetooth_message__["a" /* BluetoothAcknowledgement */]()).toString());
-        this.bluetoothle.write({ value: (new __WEBPACK_IMPORTED_MODULE_4__models_bluetooth_message__["a" /* BluetoothAcknowledgement */]()).toString(), characteristic: "", address: device.address, service: "" }).then(() => this.onAcknowledge(device));
+        alert((new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["a" /* BluetoothAcknowledgement */]()).toString());
+        bluetoothle.write(() => this.onAcknowledge(device), (failure) => this.onFail(failure), { value: (new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["a" /* BluetoothAcknowledgement */]()).toString(), characteristic: __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].WRITE, address: device.address, service: __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE });
     }
     onConnect(device) {
         //console.info(`[BluetoothService] - onConnect() :: Connected to BT device ${device.address}.`);
@@ -912,15 +675,15 @@ let BluetoothService = class BluetoothService {
         });
         alertBox.present();
         alert("subscribing to bluetooth channel");
-        this.bluetoothle.subscribe({ address: device.address, characteristic: `${__WEBPACK_IMPORTED_MODULE_4__models_bluetooth_message__["b" /* BluetoothMessage */].FRAME_BOUNDARY}`, service: '' }).subscribe(data => this.onData(data, device));
-        this.request(device);
+        bluetoothle.subscribe(data => this.onData(data, device), failure => this.onFail(failure), { address: device.address, service: __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE, characteristic: __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].READ });
+        setTimeout(() => { this.request(device); }, 500);
     }
     onData(data, device) {
         alert("response received");
         alert(data);
         let response;
         try {
-            response = new __WEBPACK_IMPORTED_MODULE_4__models_bluetooth_message__["c" /* BluetoothResponse */](data);
+            response = new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["b" /* BluetoothResponse */](data);
         }
         catch (error) {
             this.onFail(error);
@@ -970,14 +733,14 @@ let BluetoothService = class BluetoothService {
 };
 BluetoothService = __decorate([
     Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* Injectable */])(), 
-    __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_2_ionic_angular__["b" /* Events */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2_ionic_angular__["b" /* Events */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_2_ionic_angular__["i" /* ToastController */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2_ionic_angular__["i" /* ToastController */]) === 'function' && _b) || Object, (typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_2_ionic_angular__["a" /* AlertController */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2_ionic_angular__["a" /* AlertController */]) === 'function' && _c) || Object, (typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_5__ionic_storage__["a" /* Storage */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_5__ionic_storage__["a" /* Storage */]) === 'function' && _d) || Object, (typeof (_e = typeof __WEBPACK_IMPORTED_MODULE_1__ionic_native_bluetooth_le__["a" /* BluetoothLE */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__ionic_native_bluetooth_le__["a" /* BluetoothLE */]) === 'function' && _e) || Object])
+    __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["i" /* ToastController */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["i" /* ToastController */]) === 'function' && _b) || Object, (typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */]) === 'function' && _c) || Object, (typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_4__ionic_storage__["a" /* Storage */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_4__ionic_storage__["a" /* Storage */]) === 'function' && _d) || Object])
 ], BluetoothService);
-var _a, _b, _c, _d, _e;
+var _a, _b, _c, _d;
 //# sourceMappingURL=bluetooth-service.js.map
 
 /***/ }),
 
-/***/ 274:
+/***/ 240:
 /***/ (function(module, exports) {
 
 function webpackEmptyAsyncContext(req) {
@@ -990,21 +753,21 @@ function webpackEmptyAsyncContext(req) {
 webpackEmptyAsyncContext.keys = function() { return []; };
 webpackEmptyAsyncContext.resolve = webpackEmptyAsyncContext;
 module.exports = webpackEmptyAsyncContext;
-webpackEmptyAsyncContext.id = 274;
+webpackEmptyAsyncContext.id = 240;
 
 /***/ }),
 
-/***/ 522:
+/***/ 486:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return LoginPage; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(19);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(21);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__tabs_tabs__ = __webpack_require__(523);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__providers_operator_service__ = __webpack_require__(105);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_configuration_service__ = __webpack_require__(103);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__tabs_tabs__ = __webpack_require__(487);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__providers_operator_service__ = __webpack_require__(92);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_configuration_service__ = __webpack_require__(89);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1077,15 +840,15 @@ LoginPage = __decorate([
 
 /***/ }),
 
-/***/ 523:
+/***/ 487:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return TabsPage; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(21);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__transaction_transaction__ = __webpack_require__(524);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__timesheet_timesheet__ = __webpack_require__(550);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__transaction_transaction__ = __webpack_require__(488);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__timesheet_timesheet__ = __webpack_require__(490);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1116,21 +879,21 @@ TabsPage = __decorate([
 
 /***/ }),
 
-/***/ 524:
+/***/ 488:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return CreateTransactionPage; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(19);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(21);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__providers_configuration_service__ = __webpack_require__(103);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__providers_plant_service__ = __webpack_require__(150);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_transaction_service__ = __webpack_require__(248);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__providers_operator_service__ = __webpack_require__(105);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__providers_timesheet_service__ = __webpack_require__(151);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__providers_bluetooth_service__ = __webpack_require__(249);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_ionic_native__ = __webpack_require__(51);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__providers_configuration_service__ = __webpack_require__(89);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__providers_plant_service__ = __webpack_require__(131);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_transaction_service__ = __webpack_require__(222);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__providers_operator_service__ = __webpack_require__(92);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__providers_timesheet_service__ = __webpack_require__(132);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__providers_bluetooth_service__ = __webpack_require__(223);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_ionic_native__ = __webpack_require__(40);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1374,18 +1137,18 @@ CreateTransactionPage = __decorate([
 
 /***/ }),
 
-/***/ 550:
+/***/ 490:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return CreateTimesheetPage; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(19);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(21);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__providers_plant_service__ = __webpack_require__(150);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__providers_operator_service__ = __webpack_require__(105);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_timesheet_service__ = __webpack_require__(151);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__providers_configuration_service__ = __webpack_require__(103);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__providers_plant_service__ = __webpack_require__(131);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__providers_operator_service__ = __webpack_require__(92);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_timesheet_service__ = __webpack_require__(132);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__providers_configuration_service__ = __webpack_require__(89);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1495,13 +1258,13 @@ CreateTimesheetPage = __decorate([
 
 /***/ }),
 
-/***/ 551:
+/***/ 491:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return SettingsPage; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(16);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1545,13 +1308,13 @@ SettingsPage = __decorate([
 
 /***/ }),
 
-/***/ 552:
+/***/ 492:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_platform_browser_dynamic__ = __webpack_require__(553);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__app_module__ = __webpack_require__(646);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_platform_browser_dynamic__ = __webpack_require__(493);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__app_module__ = __webpack_require__(591);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_core__ = __webpack_require__(0);
 
 
@@ -1562,32 +1325,32 @@ Object(__WEBPACK_IMPORTED_MODULE_0__angular_platform_browser_dynamic__["a" /* pl
 
 /***/ }),
 
-/***/ 646:
+/***/ 591:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return AppModule; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_http__ = __webpack_require__(66);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ionic_storage__ = __webpack_require__(208);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ionic_angular__ = __webpack_require__(21);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_ionic_native__ = __webpack_require__(51);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__app_component__ = __webpack_require__(690);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__pages_login_login__ = __webpack_require__(522);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__pages_settings_settings__ = __webpack_require__(551);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__pages_tabs_tabs__ = __webpack_require__(523);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__pages_timesheet_timesheet__ = __webpack_require__(550);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__pages_transaction_transaction__ = __webpack_require__(524);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__pipes__ = __webpack_require__(974);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__config__ = __webpack_require__(81);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__providers_configuration_service__ = __webpack_require__(103);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__providers_operator_service__ = __webpack_require__(105);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__providers_plant_service__ = __webpack_require__(150);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__providers_timesheet_service__ = __webpack_require__(151);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__providers_transaction_service__ = __webpack_require__(248);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__providers_sql_service__ = __webpack_require__(104);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_19__providers_bluetooth_service__ = __webpack_require__(249);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_20__providers_rollbar_service__ = __webpack_require__(975);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_http__ = __webpack_require__(53);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ionic_storage__ = __webpack_require__(184);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ionic_angular__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_ionic_native__ = __webpack_require__(40);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__app_component__ = __webpack_require__(637);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__pages_login_login__ = __webpack_require__(486);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__pages_settings_settings__ = __webpack_require__(491);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__pages_tabs_tabs__ = __webpack_require__(487);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__pages_timesheet_timesheet__ = __webpack_require__(490);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__pages_transaction_transaction__ = __webpack_require__(488);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__pipes__ = __webpack_require__(639);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__config__ = __webpack_require__(67);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__providers_configuration_service__ = __webpack_require__(89);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__providers_operator_service__ = __webpack_require__(92);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__providers_plant_service__ = __webpack_require__(131);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__providers_timesheet_service__ = __webpack_require__(132);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__providers_transaction_service__ = __webpack_require__(222);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__providers_sql_service__ = __webpack_require__(91);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_19__providers_bluetooth_service__ = __webpack_require__(223);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_20__providers_rollbar_service__ = __webpack_require__(640);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1669,22 +1432,22 @@ AppModule = __decorate([
 
 /***/ }),
 
-/***/ 690:
+/***/ 637:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return FuelITApp; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(21);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_native__ = __webpack_require__(51);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__pages_login_login__ = __webpack_require__(522);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__pages_settings_settings__ = __webpack_require__(551);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_plant_service__ = __webpack_require__(150);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__providers_operator_service__ = __webpack_require__(105);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__providers_configuration_service__ = __webpack_require__(103);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__providers_transaction_service__ = __webpack_require__(248);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__providers_timesheet_service__ = __webpack_require__(151);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__providers_bluetooth_service__ = __webpack_require__(249);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_native__ = __webpack_require__(40);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__pages_login_login__ = __webpack_require__(486);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__pages_settings_settings__ = __webpack_require__(491);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_plant_service__ = __webpack_require__(131);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__providers_operator_service__ = __webpack_require__(92);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__providers_configuration_service__ = __webpack_require__(89);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__providers_transaction_service__ = __webpack_require__(222);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__providers_timesheet_service__ = __webpack_require__(132);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__providers_bluetooth_service__ = __webpack_require__(223);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1832,7 +1595,69 @@ FuelITApp = __decorate([
 
 /***/ }),
 
-/***/ 81:
+/***/ 639:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return CapitalizePipe; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+
+let CapitalizePipe = class CapitalizePipe {
+    transform(value) {
+        if (value) {
+            return value.charAt(0).toUpperCase() + value.slice(1);
+        }
+        return value;
+    }
+};
+CapitalizePipe = __decorate([
+    Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Y" /* Pipe */])({ name: 'capitalize' }), 
+    __metadata('design:paramtypes', [])
+], CapitalizePipe);
+//# sourceMappingURL=pipes.js.map
+
+/***/ }),
+
+/***/ 640:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return RollbarErrorHandler; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+
+let RollbarErrorHandler = class RollbarErrorHandler {
+    handleError(err) {
+        console.error(err);
+        throw Error(err);
+    }
+};
+RollbarErrorHandler = __decorate([
+    Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* Injectable */])(), 
+    __metadata('design:paramtypes', [])
+], RollbarErrorHandler);
+//# sourceMappingURL=rollbar-service.js.map
+
+/***/ }),
+
+/***/ 67:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1868,12 +1693,15 @@ Config = __decorate([
 
 /***/ }),
 
-/***/ 974:
+/***/ 89:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return CapitalizePipe; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ConfigurationService; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ionic_storage__ = __webpack_require__(184);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map__ = __webpack_require__(90);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map__);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1883,29 +1711,62 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments)).next());
+    });
+};
 
-let CapitalizePipe = class CapitalizePipe {
-    transform(value) {
-        if (value) {
-            return value.charAt(0).toUpperCase() + value.slice(1);
-        }
-        return value;
+
+
+let ConfigurationService = class ConfigurationService {
+    constructor(storage) {
+        console.log('[ConfigurationService] - constructor() ::');
+        this.storage = storage;
+    }
+    get(key) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('[ConfigurationService] - get() :: ', key);
+            let result = yield this.storage.get(key);
+            return new Promise(resolve => {
+                resolve(JSON.parse(result));
+            });
+        });
+    }
+    set(key, value) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('[ConfigurationService] - set() :: ', key, value);
+            this.storage.set(key, JSON.stringify(value));
+        });
+    }
+    remove(key) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.storage.remove(key);
+        });
     }
 };
-CapitalizePipe = __decorate([
-    Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Y" /* Pipe */])({ name: 'capitalize' }), 
-    __metadata('design:paramtypes', [])
-], CapitalizePipe);
-//# sourceMappingURL=pipes.js.map
+ConfigurationService = __decorate([
+    Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* Injectable */])(), 
+    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_1__ionic_storage__["a" /* Storage */]])
+], ConfigurationService);
+//# sourceMappingURL=configuration-service.js.map
 
 /***/ }),
 
-/***/ 975:
+/***/ 91:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return RollbarErrorHandler; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return SqlService; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__ = __webpack_require__(90);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(53);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ionic_native__ = __webpack_require__(40);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__config__ = __webpack_require__(67);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1916,19 +1777,163 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 
-let RollbarErrorHandler = class RollbarErrorHandler {
-    handleError(err) {
-        console.error(err);
-        throw Error(err);
+
+
+
+
+
+const win = window;
+let SqlService = class SqlService {
+    constructor(http, configuration) {
+        this.http = http;
+        console.log('[SqlService] - constructor() :: ');
+        this.configuration = configuration;
+        if (win.sqlitePlugin) {
+            console.log('[SqlService] - constructor() :: Creating SQLite service');
+            this.storage = new __WEBPACK_IMPORTED_MODULE_3_ionic_native__["e" /* SQLite */]();
+            Promise.all([
+                __WEBPACK_IMPORTED_MODULE_3_ionic_native__["a" /* AppVersion */].getAppName(),
+                __WEBPACK_IMPORTED_MODULE_3_ionic_native__["a" /* AppVersion */].getVersionCode(),
+                __WEBPACK_IMPORTED_MODULE_3_ionic_native__["a" /* AppVersion */].getVersionNumber(),
+            ]).then(result => {
+                console.log(`[SqlService] - constructor() :: Opening database ${result[0]}.${result[1]}.${result[2]}.db`);
+                this.storage.openDatabase({
+                    name: `${result[0]}.${result[1]}.${result[2]}.db`,
+                    location: 'default'
+                });
+            });
+        }
+        else {
+            console.log('[SqlService] - constructor() :: Creating WebSQL service');
+            this.storage = win.openDatabase(this.configuration.DATABASE_CONFIG.name, '1.0', 'database', 5 * 1024 * 1024);
+        }
+    }
+    executeSql(statement, params = []) {
+        return new Promise((resolve, reject) => {
+            try {
+                this.storage.transaction((tx) => {
+                    tx.executeSql(statement, params, (tx, res) => resolve({ tx: tx, res: res }), (tx, err) => reject({ tx: tx, err: err }));
+                }, (err) => reject({ err: err }));
+            }
+            catch (err) {
+                console.warn('[SqlService] - executeSql() :: Error executing statement', statement);
+                reject({ err: err });
+            }
+        });
     }
 };
-RollbarErrorHandler = __decorate([
-    Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* Injectable */])(), 
-    __metadata('design:paramtypes', [])
-], RollbarErrorHandler);
-//# sourceMappingURL=rollbar-service.js.map
+SqlService = __decorate([
+    Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["I" /* Injectable */])(), 
+    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_2__angular_http__["a" /* Http */], __WEBPACK_IMPORTED_MODULE_4__config__["a" /* Config */]])
+], SqlService);
+//# sourceMappingURL=sql-service.js.map
+
+/***/ }),
+
+/***/ 92:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return OperatorService; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__ = __webpack_require__(489);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(53);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__sql_service__ = __webpack_require__(91);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__config__ = __webpack_require__(67);
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments)).next());
+    });
+};
+
+
+
+
+
+let OperatorService = class OperatorService {
+    constructor(http, configuration, storage) {
+        this.in_progress = false;
+        console.log('[OperatorService] - constructor() :: ');
+        this.http = http;
+        this.configuration = configuration;
+        this.storage = storage;
+    }
+    init() {
+        console.log('[OperatorService] - init() :: Preparing database table');
+        return this.storage.executeSql('CREATE TABLE IF NOT EXISTS operators (operator_id INTEGER PRIMARY KEY, first_name TEXT, last_name TEXT, pin_no TEXT)');
+    }
+    load() {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('[OperatorService] - load() :: Loading operators from the API');
+            if (this.in_progress) {
+                console.log('[OperatorService] - load() :: Loading is already in progress, exit.');
+                return null;
+            }
+            this.in_progress = true;
+            let result = yield this.http
+                .get(`${this.configuration.API_ENDPOINT}/operators-dep/${this.configuration.DEPARTMENT_ID}`)
+                .toPromise();
+            console.log('[OperatorService] - load() :: Operators loaded from the API');
+            console.log('[OperatorService] - load() :: Deleting operators from the cache');
+            yield this.deleteAll();
+            console.log('[OperatorService] - load() :: Operators deleted from the cache');
+            console.log('[OperatorService] - load() :: Creating operators in the cache.');
+            let promises = result.json().Operators.map((item) => __awaiter(this, void 0, void 0, function* () {
+                yield this.create(item);
+            }));
+            console.info('[OperatorService] - load() :: Operators loaded from the API and cached.');
+            this.in_progress = false;
+            return Promise.all(promises);
+        });
+    }
+    find(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let query = 'SELECT operator_id, first_name, last_name, pin_no FROM operators WHERE operator_id = (?)';
+            return this.storage.executeSql(query, [id]);
+        });
+    }
+    findByPinCode(pin_no) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log(`[OperatorService] - findByPinCode() :: Attempt to find operator with the PIN ${pin_no}`);
+            let query = 'SELECT operator_id, first_name, last_name, pin_no FROM operators WHERE pin_no = (?)';
+            return this.storage.executeSql(query, [pin_no]);
+        });
+    }
+    deleteAll() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return Promise.all([
+                this.storage.executeSql('DELETE FROM operators'),
+                this.storage.executeSql('DELETE FROM SQLITE_SEQUENCE WHERE name="operators"')
+            ]);
+        });
+    }
+    create(operator) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let query = 'INSERT INTO operators (operator_id, first_name, last_name, pin_no) VALUES (?, ?, ?, ?)';
+            return this.storage.executeSql(query, [operator.operator_id, operator.first_name, operator.last_name, operator.pin_no]);
+        });
+    }
+};
+OperatorService = __decorate([
+    Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["I" /* Injectable */])(), 
+    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_2__angular_http__["a" /* Http */], __WEBPACK_IMPORTED_MODULE_4__config__["a" /* Config */], __WEBPACK_IMPORTED_MODULE_3__sql_service__["a" /* SqlService */]])
+], OperatorService);
+//# sourceMappingURL=operator-service.js.map
 
 /***/ })
 
-},[552]);
+},[492]);
 //# sourceMappingURL=main.js.map
