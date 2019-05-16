@@ -556,6 +556,8 @@ let BluetoothService = class BluetoothService {
         return new Promise((resolve, reject) => {
             let devices = [];
             bluetoothle.startScan((scanStatus) => {
+                alert("device found");
+                alert(JSON.stringify(scanStatus));
                 if (scanStatus.status.status === "scanResult") {
                     alert("device found");
                     alert(JSON.stringify(scanStatus));
@@ -566,7 +568,7 @@ let BluetoothService = class BluetoothService {
                 alert("stopping scan");
                 bluetoothle.stopScan();
                 resolve(devices);
-            }, 5000);
+            }, 20000);
         });
     }
     selectDevice(devices) {
