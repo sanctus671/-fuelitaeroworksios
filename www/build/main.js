@@ -539,7 +539,7 @@ let BluetoothService = class BluetoothService {
         //console.log(`[BluetoothService] - list() :: List bound devices`);
         this.responses = new Array();
         this.events.publish('meter:listing');
-        bluetoothle.isInitialized(() => {
+        bluetoothle.initialize(() => {
             this.scanDevices().then((devices) => {
                 if (devices.length === 1) {
                     this.connect(devices[0]);
@@ -1541,7 +1541,6 @@ let FuelITApp = class FuelITApp {
             __WEBPACK_IMPORTED_MODULE_2_ionic_native__["c" /* Network */].onDisconnect().subscribe(() => {
                 this.onNetworkDisconnected();
             });
-            bluetoothle.initialize(() => { }, { request: true, restoreKey: "fuelit" });
         });
     }
     onNetworkConnected() {
@@ -1601,15 +1600,14 @@ let FuelITApp = class FuelITApp {
 };
 __decorate([
     Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["_15" /* ViewChild */])('nav'), 
-    __metadata('design:type', (typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* NavController */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* NavController */]) === 'function' && _a) || Object)
+    __metadata('design:type', __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["f" /* NavController */])
 ], FuelITApp.prototype, "navigationController", void 0);
 FuelITApp = __decorate([
     Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* Component */])({
         template: `<ion-nav #nav [root]="rootPage"></ion-nav>`
     }), 
-    __metadata('design:paramtypes', [(typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* Platform */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* Platform */]) === 'function' && _b) || Object, (typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["i" /* ToastController */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["i" /* ToastController */]) === 'function' && _c) || Object, (typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* PopoverController */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* PopoverController */]) === 'function' && _d) || Object, (typeof (_e = typeof __WEBPACK_IMPORTED_MODULE_5__providers_plant_service__["a" /* PlantService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_5__providers_plant_service__["a" /* PlantService */]) === 'function' && _e) || Object, (typeof (_f = typeof __WEBPACK_IMPORTED_MODULE_6__providers_operator_service__["a" /* OperatorService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_6__providers_operator_service__["a" /* OperatorService */]) === 'function' && _f) || Object, (typeof (_g = typeof __WEBPACK_IMPORTED_MODULE_8__providers_transaction_service__["a" /* TransactionService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_8__providers_transaction_service__["a" /* TransactionService */]) === 'function' && _g) || Object, (typeof (_h = typeof __WEBPACK_IMPORTED_MODULE_9__providers_timesheet_service__["a" /* TimesheetService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_9__providers_timesheet_service__["a" /* TimesheetService */]) === 'function' && _h) || Object, (typeof (_j = typeof __WEBPACK_IMPORTED_MODULE_7__providers_configuration_service__["a" /* ConfigurationService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_7__providers_configuration_service__["a" /* ConfigurationService */]) === 'function' && _j) || Object, (typeof (_k = typeof __WEBPACK_IMPORTED_MODULE_10__providers_bluetooth_service__["a" /* BluetoothService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_10__providers_bluetooth_service__["a" /* BluetoothService */]) === 'function' && _k) || Object, (typeof (_l = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */]) === 'function' && _l) || Object])
+    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* Platform */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["i" /* ToastController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* PopoverController */], __WEBPACK_IMPORTED_MODULE_5__providers_plant_service__["a" /* PlantService */], __WEBPACK_IMPORTED_MODULE_6__providers_operator_service__["a" /* OperatorService */], __WEBPACK_IMPORTED_MODULE_8__providers_transaction_service__["a" /* TransactionService */], __WEBPACK_IMPORTED_MODULE_9__providers_timesheet_service__["a" /* TimesheetService */], __WEBPACK_IMPORTED_MODULE_7__providers_configuration_service__["a" /* ConfigurationService */], __WEBPACK_IMPORTED_MODULE_10__providers_bluetooth_service__["a" /* BluetoothService */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */]])
 ], FuelITApp);
-var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
 //# sourceMappingURL=app.component.js.map
 
 /***/ }),
