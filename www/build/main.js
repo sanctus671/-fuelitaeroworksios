@@ -548,7 +548,7 @@ let BluetoothService = class BluetoothService {
             ble.scan([__WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE], 5, (foundDevice) => {
                 let newDevice = { address: foundDevice.id, name: foundDevice.name };
                 if (newDevice.name && addedDevices.indexOf(newDevice.name) < 0) {
-                    alert(JSON.stringify(newDevice));
+                    alert(JSON.stringify(foundDevice));
                     devices.push(newDevice);
                     addedDevices.push(newDevice.name);
                 }
