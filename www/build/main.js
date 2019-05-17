@@ -243,9 +243,9 @@ class BluetoothUUID {
 }
 /* harmony export (immutable) */ __webpack_exports__["d"] = BluetoothUUID;
 
-BluetoothUUID.SERVICE = "569a1101-b87f-490c-92cb-11ba5ea5167c";
-BluetoothUUID.READ = "569a2001-b87f-490c-92cb-11ba5ea5167c";
-BluetoothUUID.WRITE = "569a2000-b87f-490c-92cb-11ba5ea5167c";
+BluetoothUUID.SERVICE = "569A1101-B87F-490C-92CB-11BA5EA5167C";
+BluetoothUUID.READ = "569A2001-B87F-490C-92CB-11BA5EA5167C";
+BluetoothUUID.WRITE = "569A2000-B87F-490C-92CB-11BA5EA5167C";
 class BluetoothTransactionRequest {
     toString() {
         return `${BluetoothMessage.FRAME_BOUNDARY}{"type":"transactionRequest"}${BluetoothMessage.FRAME_BOUNDARY}`;
@@ -502,88 +502,57 @@ let BluetoothService = class BluetoothService {
         this.devices = [];
     }
     checkDevices() {
-        alert("initializing");
-        bluetoothle.isInitialized(() => {
-            alert("starting scan");
-            this.scanDevices().then((devices) => {
-                let count = devices.length;
-                if (count !== this.deviceCount) {
-                    this.deviceCount = count;
-                    //prompt user if they want to connect to differant device
-                    this.changeDevice(devices);
-                }
-            });
+        this.scanDevices().then((devices) => {
+            let count = devices.length;
+            if (count !== this.deviceCount) {
+                this.deviceCount = count;
+                //prompt user if they want to connect to differant device
+                this.changeDevice(devices);
+            }
         });
     }
     connect(device) {
         //console.log('[BluetoothService] - connect() :: ');
-        bluetoothle.isInitialized(() => {
-            alert("connecting");
-            this.events.publish('meter:connecting');
-            bluetoothle.isConnected(() => {
-                this.onConnect(device);
-            }, () => {
-                bluetoothle.connect((deviceInfo) => {
-                    this.onConnect(device);
-                }, (failure) => this.onFail(failure), { address: device.address });
-            }, { address: device.address });
-        });
+        this.events.publish('meter:connecting');
+        ble.connect(device.address, (deviceDetails) => this.onConnect(device, deviceDetails), (failure) => this.onFail(failure));
     }
     list() {
         //console.log(`[BluetoothService] - list() :: List bound devices`);
         this.responses = new Array();
         this.events.publish('meter:listing');
-        bluetoothle.initialize(() => {
-            this.scanDevices().then((devices) => {
-                if (devices.length === 1) {
-                    this.connect(devices[0]);
-                    this.storage.set("previouslyConnectedMeter", devices[0].address);
-                    return;
-                }
-                else {
-                    if (this.previouslyConnectedMeter) {
-                        for (let device of devices) {
-                            if (device.address === this.previouslyConnectedMeter) {
-                                this.connect(device);
-                                return;
-                            }
+        this.scanDevices().then((devices) => {
+            if (devices.length === 1) {
+                this.connect(devices[0]);
+                this.storage.set("previouslyConnectedMeter", devices[0].address);
+                return;
+            }
+            else {
+                if (this.previouslyConnectedMeter) {
+                    for (let device of devices) {
+                        if (device.address === this.previouslyConnectedMeter) {
+                            this.connect(device);
+                            return;
                         }
                     }
-                    else {
-                        this.selectDevice(devices);
-                    }
                 }
-            });
-        }, { request: true });
+                else {
+                    this.selectDevice(devices);
+                }
+            }
+        });
     }
     scanDevices() {
         return new Promise((resolve, reject) => {
             let devices = [];
-            bluetoothle.startScan((scanStatus) => {
-                //alert("new scan status");
-                //alert(JSON.stringify(scanStatus));
-                if (scanStatus.status === "scanResult") {
-                    //alert("device found");
-                    let alertBox = this.alertCtrl.create({
-                        title: 'Device details',
-                        subTitle: JSON.stringify(scanStatus),
-                        buttons: ['Dismiss']
-                    });
-                    alertBox.present();
-                    let newDevice = { address: scanStatus.address, name: scanStatus.name };
-                    let addedDevices = [];
-                    if (newDevice.name && addedDevices.indexOf(newDevice.name) < 0) {
-                        //alert(JSON.stringify(newDevice))
-                        devices.push(newDevice);
-                        addedDevices.push(newDevice.name);
-                    }
+            let addedDevices = [];
+            ble.scan([__WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE], 5, (foundDevice) => {
+                let newDevice = { address: foundDevice.id, name: foundDevice.name };
+                if (newDevice.name && addedDevices.indexOf(newDevice.name) < 0) {
+                    alert(JSON.stringify(newDevice));
+                    devices.push(newDevice);
+                    addedDevices.push(newDevice.name);
                 }
-            }, (failure) => this.onFail(failure), {});
-            setTimeout(() => {
-                //alert("stopping scan")
-                bluetoothle.stopScan();
-                resolve(devices);
-            }, 5000);
+            }, (failure) => this.onFail(failure));
         });
     }
     selectDevice(devices) {
@@ -672,7 +641,7 @@ let BluetoothService = class BluetoothService {
         //console.log('[BluetoothService] - request() :: Sending transaction request to the BT device');
         this.events.publish('meter:reading');
         alert("making bluetooth request");
-        bluetoothle.write(() => this.onRequestComplete(), (failure) => this.onFail(failure), { value: (new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["c" /* BluetoothTransactionRequest */]()).toString(), characteristic: __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].WRITE, address: device.address, service: __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE });
+        ble.write(device.address, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].WRITE, (new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["c" /* BluetoothTransactionRequest */]()).toString(), () => this.onRequestComplete(), (failure) => this.onFail(failure));
     }
     requestAll() {
         //console.log('[BluetoothService] - requestAll() :: Sending transaction request to the BT device');
@@ -681,9 +650,9 @@ let BluetoothService = class BluetoothService {
         //console.log('[BluetoothService] - acknowledge() :: Sending acknowledge to the BT device');
         alert("writing message");
         alert((new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["a" /* BluetoothAcknowledgement */]()).toString());
-        bluetoothle.write(() => this.onAcknowledge(device), (failure) => this.onFail(failure), { value: (new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["a" /* BluetoothAcknowledgement */]()).toString(), characteristic: __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].WRITE, address: device.address, service: __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE });
+        ble.write(device.address, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].WRITE, (new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["a" /* BluetoothAcknowledgement */]()).toString(), () => this.onAcknowledge(device), (failure) => this.onFail(failure));
     }
-    onConnect(device) {
+    onConnect(device, deviceDetails) {
         //console.info(`[BluetoothService] - onConnect() :: Connected to BT device ${device.address}.`);
         let alertBox = this.alertCtrl.create({
             title: 'Success',
@@ -691,8 +660,14 @@ let BluetoothService = class BluetoothService {
             buttons: ['Dismiss']
         });
         alertBox.present();
+        let alertBox2 = this.alertCtrl.create({
+            title: 'Device Details',
+            subTitle: JSON.stringify(deviceDetails),
+            buttons: ['Dismiss']
+        });
+        alertBox2.present();
         alert("subscribing to bluetooth channel");
-        bluetoothle.subscribe(data => this.onData(data, device), failure => this.onFail(failure), { address: device.address, service: __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE, characteristic: __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].READ });
+        ble.startNotification(device.address, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].READ, (data) => this.onData(data, device), (failure) => this.onFail(failure));
         setTimeout(() => { this.request(device); }, 500);
     }
     onData(data, device) {
@@ -751,9 +726,8 @@ let BluetoothService = class BluetoothService {
 };
 BluetoothService = __decorate([
     Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* Injectable */])(), 
-    __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["i" /* ToastController */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["i" /* ToastController */]) === 'function' && _b) || Object, (typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */]) === 'function' && _c) || Object, (typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_4__ionic_storage__["a" /* Storage */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_4__ionic_storage__["a" /* Storage */]) === 'function' && _d) || Object])
+    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["i" /* ToastController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */], __WEBPACK_IMPORTED_MODULE_4__ionic_storage__["a" /* Storage */]])
 ], BluetoothService);
-var _a, _b, _c, _d;
 //# sourceMappingURL=bluetooth-service.js.map
 
 /***/ }),
