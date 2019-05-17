@@ -244,8 +244,8 @@ class BluetoothUUID {
 /* harmony export (immutable) */ __webpack_exports__["d"] = BluetoothUUID;
 
 BluetoothUUID.SERVICE = "569A1101-B87F-490C-92CB-11BA5EA5167C";
-BluetoothUUID.READ = "569A2001-B87F-490C-92CB-11BA5EA5167C";
-BluetoothUUID.WRITE = "569A2000-B87F-490C-92CB-11BA5EA5167C";
+BluetoothUUID.READ = "569A2000-B87F-490C-92CB-11BA5EA5167C";
+BluetoothUUID.WRITE = "569A2001-B87F-490C-92CB-11BA5EA5167C";
 class BluetoothTransactionRequest {
     toString() {
         return `${BluetoothMessage.FRAME_BOUNDARY}{"type":"transactionRequest"}${BluetoothMessage.FRAME_BOUNDARY}`;
