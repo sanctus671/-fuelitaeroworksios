@@ -250,6 +250,14 @@ class BluetoothTransactionRequest {
     toString() {
         return `${BluetoothMessage.FRAME_BOUNDARY}{"type":"transactionRequest"}${BluetoothMessage.FRAME_BOUNDARY}`;
     }
+    toArrayBuffer() {
+        let sendString = this.toString();
+        var array = new Uint8Array(sendString.length);
+        for (var i = 0, l = sendString.length; i < l; i++) {
+            array[i] = sendString.charCodeAt(i);
+        }
+        return array.buffer;
+    }
 }
 /* harmony export (immutable) */ __webpack_exports__["c"] = BluetoothTransactionRequest;
 
@@ -257,13 +265,23 @@ class BluetoothAcknowledgement {
     toString() {
         return `${BluetoothMessage.FRAME_BOUNDARY}{"type":"OK"}${BluetoothMessage.FRAME_BOUNDARY}`;
     }
+    toArrayBuffer() {
+        let sendString = this.toString();
+        var array = new Uint8Array(sendString.length);
+        for (var i = 0, l = sendString.length; i < l; i++) {
+            array[i] = sendString.charCodeAt(i);
+        }
+        return array.buffer;
+    }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = BluetoothAcknowledgement;
 
 class BluetoothResponse {
-    constructor(raw) {
+    constructor(rawBuffer) {
         this.data = null;
         this.type = null;
+        //convert raw from array buffer to string as per BLE central plugin https://github.com/don/cordova-plugin-ble-central#typed-arrays
+        let raw = this.bytesToString(rawBuffer);
         console.debug(`[BluetoothResponse] - constructor() :: "${raw}"`);
         if (raw != `${BluetoothMessage.FRAME_BOUNDARY}` && raw != `${BluetoothMessage.ESCAPE + BluetoothMessage.FRAME_BOUNDARY}` && raw != '') {
             try {
@@ -276,6 +294,9 @@ class BluetoothResponse {
                 throw error;
             }
         }
+    }
+    bytesToString(buffer) {
+        return String.fromCharCode.apply(null, new Uint8Array(buffer));
     }
     getData() {
         return this.data;
@@ -643,14 +664,14 @@ let BluetoothService = class BluetoothService {
     request(device) {
         //console.log('[BluetoothService] - request() :: Sending transaction request to the BT device');
         this.events.publish('meter:reading');
-        ble.write(device.address, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].WRITE, (new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["c" /* BluetoothTransactionRequest */]()).toString(), () => this.onRequestComplete(), (failure) => this.onFail(failure));
+        ble.write(device.address, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].WRITE, (new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["c" /* BluetoothTransactionRequest */]()).toArrayBuffer(), () => this.onRequestComplete(), (failure) => this.onFail(failure));
     }
     requestAll() {
         //console.log('[BluetoothService] - requestAll() :: Sending transaction request to the BT device');
     }
     acknowledge(device) {
         //console.log('[BluetoothService] - acknowledge() :: Sending acknowledge to the BT device');
-        ble.write(device.address, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].WRITE, (new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["a" /* BluetoothAcknowledgement */]()).toString(), () => this.onAcknowledge(device), (failure) => this.onFail(failure));
+        ble.write(device.address, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].WRITE, (new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["a" /* BluetoothAcknowledgement */]()).toArrayBuffer(), () => this.onAcknowledge(device), (failure) => this.onFail(failure));
     }
     onConnect(device, deviceDetails) {
         //console.info(`[BluetoothService] - onConnect() :: Connected to BT device ${device.address}.`);
