@@ -517,6 +517,12 @@ let BluetoothService = class BluetoothService {
     }
     connect(device) {
         //console.log('[BluetoothService] - connect() :: ');
+        let alertBox = this.alertCtrl.create({
+            title: 'Connecting to device...',
+            subTitle: JSON.stringify(device),
+            buttons: ['Dismiss']
+        });
+        alertBox.present();
         bluetoothle.isInitialized(() => {
             alert("connecting");
             this.events.publish('meter:connecting');
@@ -533,7 +539,7 @@ let BluetoothService = class BluetoothService {
         //console.log(`[BluetoothService] - list() :: List bound devices`);
         this.responses = new Array();
         this.events.publish('meter:listing');
-        bluetoothle.initialize(() => {
+        bluetoothle.isInitialized(() => {
             this.scanDevices().then((devices) => {
                 if (devices.length === 1) {
                     this.connect(devices[0]);
@@ -565,9 +571,11 @@ let BluetoothService = class BluetoothService {
                 if (scanStatus.status === "scanResult") {
                     //alert("device found");
                     let newDevice = { address: scanStatus.address, name: scanStatus.name };
-                    if (newDevice.name) {
+                    let addedDevices = [];
+                    if (newDevice.name && addedDevices.indexOf(newDevice.name) < 0) {
                         //alert(JSON.stringify(newDevice))
                         devices.push(newDevice);
+                        addedDevices.push(newDevice.name);
                     }
                 }
             }, (failure) => this.onFail(failure), {});
