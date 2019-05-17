@@ -548,7 +548,7 @@ let BluetoothService = class BluetoothService {
             ble.scan([__WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE], 5, (foundDevice) => {
                 let newDevice = { address: foundDevice.id, name: foundDevice.name };
                 if (newDevice.name && addedDevices.indexOf(newDevice.name) < 0) {
-                    alert(JSON.stringify(foundDevice));
+                    //alert(JSON.stringify(foundDevice))
                     devices.push(newDevice);
                     addedDevices.push(newDevice.name);
                 }
@@ -643,7 +643,6 @@ let BluetoothService = class BluetoothService {
     request(device) {
         //console.log('[BluetoothService] - request() :: Sending transaction request to the BT device');
         this.events.publish('meter:reading');
-        alert("making bluetooth request");
         ble.write(device.address, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].WRITE, (new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["c" /* BluetoothTransactionRequest */]()).toString(), () => this.onRequestComplete(), (failure) => this.onFail(failure));
     }
     requestAll() {
@@ -651,8 +650,6 @@ let BluetoothService = class BluetoothService {
     }
     acknowledge(device) {
         //console.log('[BluetoothService] - acknowledge() :: Sending acknowledge to the BT device');
-        alert("writing message");
-        alert((new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["a" /* BluetoothAcknowledgement */]()).toString());
         ble.write(device.address, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].WRITE, (new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["a" /* BluetoothAcknowledgement */]()).toString(), () => this.onAcknowledge(device), (failure) => this.onFail(failure));
     }
     onConnect(device, deviceDetails) {
@@ -669,13 +666,16 @@ let BluetoothService = class BluetoothService {
             buttons: ['Dismiss']
         });
         alertBox2.present();
-        alert("subscribing to bluetooth channel");
         ble.startNotification(device.address, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].READ, (data) => this.onData(data, device), (failure) => this.onFail(failure));
-        setTimeout(() => { this.request(device); }, 500);
+        this.request(device);
     }
     onData(data, device) {
-        alert("response received");
-        alert(data);
+        let alertBox = this.alertCtrl.create({
+            title: 'Response Received',
+            subTitle: data,
+            buttons: ['Dismiss']
+        });
+        alertBox.present();
         let response;
         try {
             response = new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["b" /* BluetoothResponse */](data);
@@ -686,7 +686,6 @@ let BluetoothService = class BluetoothService {
         }
         // If the response is just a boundary, drop the response.
         if (response.isBoundaryOnly()) {
-            alert("response is boundary");
             return;
         }
         // If the response is not empty, store it until we get an empty response
@@ -706,21 +705,31 @@ let BluetoothService = class BluetoothService {
         }
     }
     onRequestComplete() {
-        alert("request complete");
+        let alertBox = this.alertCtrl.create({
+            title: 'Data Requested',
+            subTitle: 'Data successfully requested from meter',
+            buttons: ['Dismiss']
+        });
+        alertBox.present();
         //console.log('[BluetoothService] - onRequestComplete() :: Transaction request sent to BT device');
     }
     onAcknowledge(device) {
         //console.log('[BluetoothService] - onAcknowledge() :: Acknowledge sent to BT device');
-        alert("bluetooth acknowledged");
         this.request(device);
     }
     onFail(failure) {
-        alert(JSON.stringify(failure));
+        let message = "";
+        try {
+            message = JSON.stringify(failure);
+        }
+        catch (e) {
+            message = failure;
+        }
         console.warn('[BluetoothService] - onFail() :: ', failure);
         this.events.publish('meter:complete');
         let toast = this.toastController.create({
             message: failure,
-            duration: 2000,
+            duration: 5000,
             cssClass: 'toast-error'
         });
         this.events.publish('database:synced');
