@@ -779,13 +779,19 @@ let BluetoothService = class BluetoothService {
             response = new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["b" /* BluetoothResponse */](data);
         }
         catch (error) {
-            this.chunkedResponse = this.chunkedResponse + data;
+            this.chunkedResponse = this.chunkedResponse + String.fromCharCode.apply(null, new Uint8Array(data));
             try {
                 response = new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["b" /* BluetoothResponse */](this.chunkedResponse);
             }
             catch (error) {
                 return;
             }
+            let alertBox = this.alertCtrl.create({
+                title: 'Full Response Captured',
+                subTitle: this.chunkedResponse,
+                buttons: ['Dismiss']
+            });
+            alertBox.present();
             this.chunkedResponse = "";
         }
         // If the response is just a boundary, drop the response.
