@@ -536,7 +536,7 @@ let BluetoothService = class BluetoothService {
         //console.log('[BluetoothService] - connect() :: ');
         this.events.publish('meter:connecting');
         ble.isConnected(device.address, () => {
-            this.onConnect(device, { "status": "device was already connected" });
+            this.onConnect(device, { status: "device was already connected" });
         }, () => {
             ble.connect(device.address, (deviceDetails) => this.onConnect(device, deviceDetails), (failure) => this.onFail(failure));
         });
@@ -668,7 +668,12 @@ let BluetoothService = class BluetoothService {
     request(device) {
         //console.log('[BluetoothService] - request() :: Sending transaction request to the BT device');
         this.events.publish('meter:reading');
-        ble.writeWithoutResponse(device.address, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].WRITE, (new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["c" /* BluetoothTransactionRequest */]()).toArrayBuffer(), () => this.onRequestComplete(), (failure) => this.onFail(failure));
+        let buffer = (new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["c" /* BluetoothTransactionRequest */]()).toArrayBuffer();
+        var i, j, temparray, chunk = 10;
+        for (i = 0, j = buffer.length; i < j; i += chunk) {
+            temparray = buffer.slice(i, i + chunk);
+            ble.write(device.address, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].WRITE, temparray, () => this.onRequestComplete(), (failure) => this.onFail(failure));
+        }
     }
     requestAll() {
         //console.log('[BluetoothService] - requestAll() :: Sending transaction request to the BT device');
@@ -706,6 +711,7 @@ let BluetoothService = class BluetoothService {
                         role: 'cancel',
                         handler: () => {
                             this.events.publish('meter:complete');
+                            ble.disconnect(device.address);
                         }
                     },
                     {
@@ -751,6 +757,7 @@ let BluetoothService = class BluetoothService {
                 this.events.publish('meter:data', this.responses);
             }
             this.events.publish('meter:complete');
+            ble.disconnect(device.address);
         }
     }
     onRequestComplete() {
