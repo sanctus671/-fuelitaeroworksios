@@ -331,7 +331,9 @@ class BluetoothResponse {
         console.debug(`[BluetoothResponse] - constructor() :: "${raw}"`);
         if (raw != `${BluetoothMessage.FRAME_BOUNDARY}` && raw != `${BluetoothMessage.ESCAPE + BluetoothMessage.FRAME_BOUNDARY}` && raw != '') {
             try {
-                let packet = JSON.parse(String(raw.slice(0, -1)));
+                raw.replace(BluetoothMessage.FRAME_BOUNDARY, "");
+                raw.replace(BluetoothMessage.ESCAPE, "");
+                let packet = JSON.parse(String(raw.slice(0, raw.length)));
                 this.data = packet.data;
                 this.type = packet.type;
             }
