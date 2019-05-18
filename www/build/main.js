@@ -317,11 +317,17 @@ class BluetoothAcknowledgement {
 /* harmony export (immutable) */ __webpack_exports__["a"] = BluetoothAcknowledgement;
 
 class BluetoothResponse {
-    constructor(rawBuffer) {
+    constructor(rawBuffer, isString) {
         this.data = null;
         this.type = null;
         //convert raw from array buffer to string as per BLE central plugin https://github.com/don/cordova-plugin-ble-central#typed-arrays
-        let raw = this.bytesToString(rawBuffer);
+        let raw = "";
+        if (!isString) {
+            raw = this.bytesToString(rawBuffer);
+        }
+        else {
+            raw = rawBuffer;
+        }
         console.debug(`[BluetoothResponse] - constructor() :: "${raw}"`);
         if (raw != `${BluetoothMessage.FRAME_BOUNDARY}` && raw != `${BluetoothMessage.ESCAPE + BluetoothMessage.FRAME_BOUNDARY}` && raw != '') {
             try {
@@ -768,20 +774,29 @@ let BluetoothService = class BluetoothService {
         */
     }
     onData(data, device) {
+        /*
         let alertBox = this.alertCtrl.create({
-            title: 'Response Received',
-            subTitle: String.fromCharCode.apply(null, new Uint8Array(data)),
-            buttons: ['Dismiss']
+          title: 'Response Received',
+          subTitle: String.fromCharCode.apply(null, new Uint8Array(data)),
+          buttons: ['Dismiss']
         });
         alertBox.present();
+        
+        */
         let response;
         try {
-            response = new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["b" /* BluetoothResponse */](data);
+            response = new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["b" /* BluetoothResponse */](data, false);
         }
         catch (error) {
             this.chunkedResponse = this.chunkedResponse + String.fromCharCode.apply(null, new Uint8Array(data));
+            let alertBox2 = this.alertCtrl.create({
+                title: 'Current Position',
+                subTitle: this.chunkedResponse,
+                buttons: ['Dismiss']
+            });
+            alertBox2.present();
             try {
-                response = new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["b" /* BluetoothResponse */](this.chunkedResponse);
+                response = new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["b" /* BluetoothResponse */](this.chunkedResponse, true);
             }
             catch (error) {
                 return;
