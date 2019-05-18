@@ -667,12 +667,6 @@ let BluetoothService = class BluetoothService {
     }
     request(device) {
         //console.log('[BluetoothService] - request() :: Sending transaction request to the BT device');
-        let alertBox = this.alertCtrl.create({
-            title: 'Request data',
-            subTitle: JSON.stringify((new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["c" /* BluetoothTransactionRequest */]()).toArrayBuffer()),
-            buttons: ['Dismiss']
-        });
-        alertBox.present();
         this.events.publish('meter:reading');
         ble.writeWithoutResponse(device.address, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].WRITE, (new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["c" /* BluetoothTransactionRequest */]()).toArrayBuffer(), () => this.onRequestComplete(), (failure) => this.onFail(failure));
     }
@@ -691,14 +685,38 @@ let BluetoothService = class BluetoothService {
             buttons: ['Dismiss']
         });
         alertBox.present();
+        /*
+         * for debugging purposes
         let alertBox2 = this.alertCtrl.create({
-            title: 'Device Details',
-            subTitle: JSON.stringify(deviceDetails),
-            buttons: ['Dismiss']
+          title: 'Device Details',
+          subTitle: JSON.stringify(deviceDetails),
+          buttons: ['Dismiss']
         });
         alertBox2.present();
+        
+        */
         ble.startNotification(device.address, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].READ, (data) => this.onData(data, device), (failure) => this.onFail(failure));
         this.request(device);
+        setTimeout(() => {
+            let alertBox = this.alertCtrl.create({
+                title: 'Request Again',
+                subTitle: 'Make the request again',
+                buttons: [{
+                        text: 'Cancel',
+                        role: 'cancel',
+                        handler: () => {
+                            this.events.publish('meter:complete');
+                        }
+                    },
+                    {
+                        text: 'Request',
+                        handler: () => {
+                            this.request(device);
+                        }
+                    }]
+            });
+            alertBox.present();
+        }, 10000);
     }
     onData(data, device) {
         let alertBox = this.alertCtrl.create({
