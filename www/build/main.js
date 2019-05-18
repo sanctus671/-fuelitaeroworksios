@@ -778,22 +778,28 @@ let BluetoothService = class BluetoothService {
         }
         catch (error) {
             this.chunkedResponse = this.chunkedResponse + String.fromCharCode.apply(null, new Uint8Array(data));
+            /*
             let alertBox2 = this.alertCtrl.create({
-                title: 'Current Position',
-                subTitle: this.chunkedResponse,
-                buttons: ['Dismiss']
+              title: 'Current Position',
+              subTitle: this.chunkedResponse,
+              buttons: ['Dismiss']
             });
             alertBox2.present();
+            
+            */
             try {
                 response = new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["b" /* BluetoothResponse */](this.chunkedResponse, true);
             }
             catch (error) {
+                /*
                 let alertBox3 = this.alertCtrl.create({
-                    title: 'Error converting response',
-                    subTitle: error,
-                    buttons: ['Dismiss']
+                  title: 'Error converting response',
+                  subTitle: error,
+                  buttons: ['Dismiss']
                 });
                 alertBox3.present();
+                
+                */
                 return;
             }
             let alertBox = this.alertCtrl.create({
@@ -838,7 +844,7 @@ let BluetoothService = class BluetoothService {
         //console.log('[BluetoothService] - onRequestComplete() :: Transaction request sent to BT device');
     }
     onAcknowledge(device) {
-        //console.log('[BluetoothService] - onAcknowledge() :: Acknowledge sent to BT device');
+        //console.log('[BluetoothService] - onAcknowledge() :: Acknowledge sent to BT device');      
         this.request(device);
     }
     onFail(failure) {
