@@ -535,7 +535,11 @@ let BluetoothService = class BluetoothService {
     connect(device) {
         //console.log('[BluetoothService] - connect() :: ');
         this.events.publish('meter:connecting');
-        ble.connect(device.address, (deviceDetails) => this.onConnect(device, deviceDetails), (failure) => this.onFail(failure));
+        ble.isConnected(device.address, () => {
+            this.onConnect(device, { "status": "device was already connected" });
+        }, () => {
+            ble.connect(device.address, (deviceDetails) => this.onConnect(device, deviceDetails), (failure) => this.onFail(failure));
+        });
     }
     list() {
         //console.log(`[BluetoothService] - list() :: List bound devices`);
@@ -663,15 +667,21 @@ let BluetoothService = class BluetoothService {
     }
     request(device) {
         //console.log('[BluetoothService] - request() :: Sending transaction request to the BT device');
+        let alertBox = this.alertCtrl.create({
+            title: 'Request data',
+            subTitle: JSON.stringify((new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["c" /* BluetoothTransactionRequest */]()).toArrayBuffer()),
+            buttons: ['Dismiss']
+        });
+        alertBox.present();
         this.events.publish('meter:reading');
-        ble.write(device.address, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].WRITE, (new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["c" /* BluetoothTransactionRequest */]()).toArrayBuffer(), () => this.onRequestComplete(), (failure) => this.onFail(failure));
+        ble.writeWithoutResponse(device.address, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].WRITE, (new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["c" /* BluetoothTransactionRequest */]()).toArrayBuffer(), () => this.onRequestComplete(), (failure) => this.onFail(failure));
     }
     requestAll() {
         //console.log('[BluetoothService] - requestAll() :: Sending transaction request to the BT device');
     }
     acknowledge(device) {
         //console.log('[BluetoothService] - acknowledge() :: Sending acknowledge to the BT device');
-        ble.write(device.address, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].WRITE, (new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["a" /* BluetoothAcknowledgement */]()).toArrayBuffer(), () => this.onAcknowledge(device), (failure) => this.onFail(failure));
+        ble.writeWithoutResponse(device.address, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].WRITE, (new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["a" /* BluetoothAcknowledgement */]()).toArrayBuffer(), () => this.onAcknowledge(device), (failure) => this.onFail(failure));
     }
     onConnect(device, deviceDetails) {
         //console.info(`[BluetoothService] - onConnect() :: Connected to BT device ${device.address}.`);
