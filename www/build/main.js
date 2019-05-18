@@ -567,6 +567,7 @@ let BluetoothService = class BluetoothService {
             }
         });
         this.devices = [];
+        this.chunkedResponse = "";
     }
     checkDevices() {
         this.scanDevices().then((devices) => {
@@ -799,6 +800,12 @@ let BluetoothService = class BluetoothService {
                 response = new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["b" /* BluetoothResponse */](this.chunkedResponse, true);
             }
             catch (error) {
+                let alertBox3 = this.alertCtrl.create({
+                    title: 'Error converting response',
+                    subTitle: error,
+                    buttons: ['Dismiss']
+                });
+                alertBox3.present();
                 return;
             }
             let alertBox = this.alertCtrl.create({
