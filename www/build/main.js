@@ -669,7 +669,7 @@ let BluetoothService = class BluetoothService {
         //console.log('[BluetoothService] - request() :: Sending transaction request to the BT device');
         this.events.publish('meter:reading');
         let buffer = (new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["c" /* BluetoothTransactionRequest */]()).toArrayBuffer();
-        ble.writeWithoutResponse(device.address, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].WRITE, buffer, () => this.onRequestComplete(), (failure) => this.onFail(failure));
+        ble.write(device.address, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].WRITE, buffer, () => this.onRequestComplete(), (failure) => this.onFail(failure));
     }
     requestAll() {
         //console.log('[BluetoothService] - requestAll() :: Sending transaction request to the BT device');
@@ -790,8 +790,9 @@ let BluetoothService = class BluetoothService {
 };
 BluetoothService = __decorate([
     Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* Injectable */])(), 
-    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["i" /* ToastController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */], __WEBPACK_IMPORTED_MODULE_4__ionic_storage__["a" /* Storage */]])
+    __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["b" /* Events */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["i" /* ToastController */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["i" /* ToastController */]) === 'function' && _b) || Object, (typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["a" /* AlertController */]) === 'function' && _c) || Object, (typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_4__ionic_storage__["a" /* Storage */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_4__ionic_storage__["a" /* Storage */]) === 'function' && _d) || Object])
 ], BluetoothService);
+var _a, _b, _c, _d;
 //# sourceMappingURL=bluetooth-service.js.map
 
 /***/ }),
