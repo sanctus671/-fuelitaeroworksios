@@ -258,45 +258,18 @@ class BluetoothTransactionRequest {
         }
         return array.buffer;
     }
-    toArrayBuffer1() {
-        let sendString = `${BluetoothMessage.FRAME_BOUNDARY}`;
-        var array = new Uint8Array(sendString.length);
-        for (var i = 0, l = sendString.length; i < l; i++) {
-            array[i] = sendString.charCodeAt(i);
+    toChunkedArrayBuffer() {
+        let sendString = this.toString();
+        let chunks = sendString.match(/.{1,10}/g);
+        let chunkedBuffer = [];
+        for (let chunk of chunks) {
+            var array = new Uint8Array(chunk.length);
+            for (var i = 0, l = chunk.length; i < l; i++) {
+                array[i] = chunk.charCodeAt(i);
+            }
+            chunkedBuffer.push(array.buffer);
         }
-        return array.buffer;
-    }
-    toArrayBuffer2() {
-        let sendString = `{"type":"t`;
-        var array = new Uint8Array(sendString.length);
-        for (var i = 0, l = sendString.length; i < l; i++) {
-            array[i] = sendString.charCodeAt(i);
-        }
-        return array.buffer;
-    }
-    toArrayBuffer3() {
-        let sendString = `ransaction`;
-        var array = new Uint8Array(sendString.length);
-        for (var i = 0, l = sendString.length; i < l; i++) {
-            array[i] = sendString.charCodeAt(i);
-        }
-        return array.buffer;
-    }
-    toArrayBuffer4() {
-        let sendString = `Request"}`;
-        var array = new Uint8Array(sendString.length);
-        for (var i = 0, l = sendString.length; i < l; i++) {
-            array[i] = sendString.charCodeAt(i);
-        }
-        return array.buffer;
-    }
-    toArrayBuffer5() {
-        let sendString = `${BluetoothMessage.FRAME_BOUNDARY}`;
-        var array = new Uint8Array(sendString.length);
-        for (var i = 0, l = sendString.length; i < l; i++) {
-            array[i] = sendString.charCodeAt(i);
-        }
-        return array.buffer;
+        return chunkedBuffer;
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["c"] = BluetoothTransactionRequest;
@@ -312,6 +285,19 @@ class BluetoothAcknowledgement {
             array[i] = sendString.charCodeAt(i);
         }
         return array.buffer;
+    }
+    toChunkedArrayBuffer() {
+        let sendString = this.toString();
+        let chunks = sendString.match(/.{1,10}/g);
+        let chunkedBuffer = [];
+        for (let chunk of chunks) {
+            var array = new Uint8Array(chunk.length);
+            for (var i = 0, l = chunk.length; i < l; i++) {
+                array[i] = chunk.charCodeAt(i);
+            }
+            chunkedBuffer.push(array.buffer);
+        }
+        return chunkedBuffer;
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = BluetoothAcknowledgement;
@@ -331,8 +317,7 @@ class BluetoothResponse {
         console.debug(`[BluetoothResponse] - constructor() :: "${raw}"`);
         if (raw != `${BluetoothMessage.FRAME_BOUNDARY}` && raw != `${BluetoothMessage.ESCAPE + BluetoothMessage.FRAME_BOUNDARY}` && raw != '') {
             try {
-                raw.replace(BluetoothMessage.FRAME_BOUNDARY, "");
-                raw.replace(BluetoothMessage.ESCAPE, "");
+                raw = raw.replace(/\x1C/g, '').replace(/\x0A/g, '');
                 let packet = JSON.parse(String(raw.slice(0, raw.length)));
                 this.data = packet.data;
                 this.type = packet.type;
@@ -717,19 +702,20 @@ let BluetoothService = class BluetoothService {
     request(device) {
         //console.log('[BluetoothService] - request() :: Sending transaction request to the BT device');
         this.events.publish('meter:reading');
-        //let buffer = (new BluetoothTransactionRequest()).toArrayBuffer();
-        ble.write(device.address, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].WRITE, (new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["c" /* BluetoothTransactionRequest */]()).toArrayBuffer1(), () => this.onRequestComplete(), (failure) => this.onFail(failure));
-        ble.write(device.address, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].WRITE, (new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["c" /* BluetoothTransactionRequest */]()).toArrayBuffer2(), () => this.onRequestComplete(), (failure) => this.onFail(failure));
-        ble.write(device.address, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].WRITE, (new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["c" /* BluetoothTransactionRequest */]()).toArrayBuffer3(), () => this.onRequestComplete(), (failure) => this.onFail(failure));
-        ble.write(device.address, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].WRITE, (new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["c" /* BluetoothTransactionRequest */]()).toArrayBuffer4(), () => this.onRequestComplete(), (failure) => this.onFail(failure));
-        ble.write(device.address, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].WRITE, (new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["c" /* BluetoothTransactionRequest */]()).toArrayBuffer5(), () => this.onRequestComplete(), (failure) => this.onFail(failure));
+        let chunkedBuffer = (new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["c" /* BluetoothTransactionRequest */]()).toChunkedArrayBuffer();
+        for (let chunk of chunkedBuffer) {
+            ble.write(device.address, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].WRITE, chunk, () => this.onRequestComplete(), (failure) => this.onFail(failure));
+        }
     }
     requestAll() {
         //console.log('[BluetoothService] - requestAll() :: Sending transaction request to the BT device');
     }
     acknowledge(device) {
         //console.log('[BluetoothService] - acknowledge() :: Sending acknowledge to the BT device');
-        ble.writeWithoutResponse(device.address, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].WRITE, (new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["a" /* BluetoothAcknowledgement */]()).toArrayBuffer(), () => this.onAcknowledge(device), (failure) => this.onFail(failure));
+        let chunkedBuffer = (new __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["a" /* BluetoothAcknowledgement */]()).toChunkedArrayBuffer();
+        for (let chunk of chunkedBuffer) {
+            ble.write(device.address, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].SERVICE, __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__["d" /* BluetoothUUID */].WRITE, chunk, () => this.onAcknowledge(device), (failure) => this.onFail(failure));
+        }
     }
     onConnect(device, deviceDetails) {
         //console.info(`[BluetoothService] - onConnect() :: Connected to BT device ${device.address}.`);
