@@ -802,12 +802,14 @@ let BluetoothService = class BluetoothService {
                 */
                 return;
             }
-            let alertBox = this.alertCtrl.create({
-                title: 'Full Response Captured',
-                subTitle: this.chunkedResponse,
-                buttons: ['Dismiss']
-            });
-            alertBox.present();
+            /*
+          let alertBox = this.alertCtrl.create({
+            title: 'Full Response Captured',
+            subTitle: this.chunkedResponse,
+            buttons: ['Dismiss']
+          });
+          alertBox.present();
+          */
             this.chunkedResponse = "";
         }
         // If the response is just a boundary, drop the response.
@@ -1637,7 +1639,14 @@ let FuelITApp = class FuelITApp {
             this.settings(event);
         });
         platform.ready().then(() => {
-            __WEBPACK_IMPORTED_MODULE_2_ionic_native__["g" /* StatusBar */].styleDefault();
+            if (platform.is("android")) {
+                //this.statusBar.backgroundColorByHexString("#952517");
+                //this.statusBar.styleLightContent();
+                __WEBPACK_IMPORTED_MODULE_2_ionic_native__["g" /* StatusBar */].styleDefault();
+            }
+            else {
+                __WEBPACK_IMPORTED_MODULE_2_ionic_native__["g" /* StatusBar */].styleLightContent();
+            }
             __WEBPACK_IMPORTED_MODULE_2_ionic_native__["f" /* Splashscreen */].hide();
             __WEBPACK_IMPORTED_MODULE_2_ionic_native__["d" /* Rollbar */].init();
             console.log('[FuelITApp] - constructor() :: Detecting platforms:', platform.platforms());
