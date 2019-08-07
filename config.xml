@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="co.fuelit.aeroworks002" version="0.0.19" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:gap="http://phonegap.com/ns/1.0">
+<widget id="nz.co.ravensdown.aeroworks" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:gap="http://phonegap.com/ns/1.0">
     <name>AeroWorks</name>
     <description>Fuel-IT App for AeroWorks</description>
-    <author email="developers@boysfromthefactory.co.nz" href="http://boysfromthefactory.co.nz/">Boys From The Factory</author>
+    <author email="contact@Fuel-it.co" href="https://fuel-it.co.nz/">Fuel IT</author>
     <content src="index.html" />
     <access origin="*" />
     <allow-intent href="http://*/*" />
