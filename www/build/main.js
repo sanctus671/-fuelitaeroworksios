@@ -5,13 +5,13 @@ webpackJsonp([0],{
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return PlantService; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__ = __webpack_require__(222);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__ = __webpack_require__(224);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(37);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ionic_angular__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ionic_angular__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__config__ = __webpack_require__(51);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__sql_service__ = __webpack_require__(59);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__sql_service__ = __webpack_require__(60);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -115,13 +115,263 @@ PlantService = __decorate([
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return TimesheetService; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__ = __webpack_require__(71);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return TransactionService; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__ = __webpack_require__(72);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(37);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_common__ = __webpack_require__(64);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__sql_service__ = __webpack_require__(59);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_common__ = __webpack_require__(66);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__config__ = __webpack_require__(51);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__sql_service__ = __webpack_require__(60);
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments)).next());
+    });
+};
+
+
+
+
+
+
+let TransactionService = class TransactionService {
+    constructor(http, configuration, storage) {
+        console.log('[TransactionService] - constructor() :: ');
+        this.http = http;
+        this.configuration = configuration;
+        this.storage = storage;
+    }
+    init() {
+        console.log('[TransactionService] - init() :: Preparing database table');
+        return this.storage.executeSql(`CREATE TABLE IF NOT EXISTS transactions (
+            transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            pad_id TEXT,
+            operator_id INTEGER,
+            plant_id INTEGER,
+            trailer_id INTEGER,
+            odometer INTEGER,
+            battery_percentage INTEGER,
+            long TEXT,
+            lat TEXT,
+            end_value TEXT,
+            end_total_value TEXT,
+            transaction_end_date TEXT,
+            synced_at TEXT
+        )`);
+    }
+    initRefills() {
+        console.log('[TransactionService] - init() :: Preparing database table 2');
+        return this.storage.executeSql(`CREATE TABLE IF NOT EXISTS refills (
+            transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            operator_id INTEGER,
+            from_trailer_id INTEGER,
+            to_trailer_id INTEGER,
+            amount TEXT,
+            synced_at TEXT
+        )`);
+    }
+    create(transaction) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('[TransactionService] - create() :: Creating transaction in the cache:', transaction);
+            let datePipe = new __WEBPACK_IMPORTED_MODULE_3__angular_common__["c" /* DatePipe */](this.configuration.LOCALE);
+            // transaction.transaction_end_date is a timestamp, but in local time ...
+            let transaction_end_date = transaction.transaction_end_date;
+            transaction_end_date = transaction_end_date + (new Date()).getTimezoneOffset() * 60;
+            transaction.transaction_end_date = datePipe.transform(new Date(transaction_end_date * 1000), 'y-MM-dd HH:mm:ss');
+            let insert_query = `INSERT INTO transactions (
+            pad_id, 
+            operator_id, 
+            plant_id, 
+            trailer_id, 
+            odometer, 
+            battery_percentage, 
+            long, 
+            lat, 
+            end_value, 
+            end_total_value, 
+            transaction_end_date
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            let result = yield this.storage.executeSql(insert_query, [
+                transaction.pad_id,
+                transaction.operator_id,
+                transaction.plant_id,
+                transaction.trailer_id,
+                transaction.odometer,
+                transaction.battery_percentage,
+                transaction.long,
+                transaction.lat,
+                transaction.end_value,
+                transaction.end_total_value,
+                transaction.transaction_end_date
+            ]);
+            console.log('[TransactionService] - create() :: Transaction created in the cache:', transaction);
+            try {
+                console.log('[TransactionService] - create() :: Uploading transaction in the API:', result);
+                transaction.transaction_id = result.res.insertId;
+                let api_result = yield this.http
+                    .post(this.configuration.API_ENDPOINT + '/transaction/', transaction)
+                    .toPromise();
+                console.log('[TransactionService] - create() :: Transaction uploaded to the API:', api_result);
+                console.log('[TransactionService] - create() :: Marking transaction in the cache as synced:', api_result);
+                let update_query = 'UPDATE transactions SET synced_at = (?) WHERE transaction_id = (?)';
+                result = yield this.storage.executeSql(update_query, [datePipe.transform(Date.now(), 'y-MM-dd HH:mm:ss'), transaction.transaction_id]);
+                console.log('[TransactionService] - create() :: Transaction marked in the cache as synced:', result);
+                console.info('[TransactionService] - create() :: Transaction uploaded and marked as synced');
+            }
+            catch (exception) {
+                console.warn('[TransactionService] - create() :: Failed to create transaction in the API:', transaction, exception);
+            }
+            return result;
+        });
+    }
+    createRefill(transaction) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('[TransactionService] - create() :: Creating Refill in the cache:', transaction);
+            let insert_query = 'INSERT INTO refills (operator_id, from_trailer_id, to_trailer_id, amount) VALUES (?, ?, ?, ?)';
+            let result = yield this.storage.executeSql(insert_query, [
+                transaction.operator_id,
+                transaction.from_trailer_id,
+                transaction.to_trailer_id,
+                transaction.amount,
+            ]);
+            console.log('[TransactionService] - create() :: Transaction created in the cache:', result.res.insertId);
+            try {
+                console.log('[TransactionService] - create() :: Creating TransactionService in the API:', result);
+                transaction.transaction_id = result.res.insertId;
+                let api_result = yield this.http
+                    .post(this.configuration.API_ENDPOINT + '/tank-refill/', transaction)
+                    .toPromise();
+                console.log('[TransactionService] - create() :: Transaction created in the API:', api_result);
+                console.log('[TransactionService] - create() :: Updating Transaction in the cache as synced:', api_result);
+                let update_query = `UPDATE refills SET synced_at = (?) WHERE transaction_id = (?)`;
+                let datePipe = new __WEBPACK_IMPORTED_MODULE_3__angular_common__["c" /* DatePipe */](this.configuration.LOCALE);
+                result = yield this.storage.executeSql(update_query, [
+                    datePipe.transform(Date.now(), 'y-MM-dd HH:mm:ss'),
+                    transaction.dipreading_id
+                ]);
+                console.log('[TransactionService] - create() :: Transaction updated in the cache as synced:', result);
+                console.info('[TransactionService] - create() :: Transaction uploaded and marked as synced');
+            }
+            catch (exception) {
+                console.warn('[TransactionService] - create() :: Failed to create Transaction in the API:', transaction, exception);
+            }
+            return result;
+        });
+    }
+    upload() {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('[TransactionService] - upload() :: Finding non-synced transactions');
+            let select_query = `SELECT 
+                          transaction_id, 
+                          pad_id, 
+                          operator_id, 
+                          plant_id, 
+                          trailer_id, 
+                          odometer, 
+                          battery_percentage, 
+                          long, 
+                          lat, 
+                          end_value, 
+                          end_total_value, 
+                          transaction_end_date, 
+                          synced_at 
+                          FROM transactions WHERE synced_at IS NULL`;
+            let transactions = yield this.storage.executeSql(select_query).then((data) => __awaiter(this, void 0, void 0, function* () {
+                console.log('[TransactionService] - upload() :: Found non-synced transaction:', data.res.rows.length);
+                let promises = [];
+                for (let i = 0; i < data.res.rows.length; i++) {
+                    let transaction = data.res.rows.item(i);
+                    yield this.http
+                        .post(this.configuration.API_ENDPOINT + '/transaction/', transaction)
+                        .toPromise();
+                    let update_query = 'UPDATE transactions SET synced_at = (?) WHERE transaction_id = (?)';
+                    let datePipe = new __WEBPACK_IMPORTED_MODULE_3__angular_common__["c" /* DatePipe */](this.configuration.LOCALE);
+                    let promise = yield this.storage.executeSql(update_query, [
+                        datePipe.transform(Date.now(), 'y-MM-dd HH:mm:ss'),
+                        transaction.transaction_id
+                    ]);
+                    promises.push(promise);
+                }
+                return promises;
+            }));
+            let transactions2 = yield this.storage.executeSql("SELECT * FROM refills WHERE synced_at IS NULL").then((data) => __awaiter(this, void 0, void 0, function* () {
+                console.log('[TransactionService] - upload() :: Found non-synced refill transaction:', data.res.rows.length);
+                let promises = [];
+                for (let i = 0; i < data.res.rows.length; i++) {
+                    let transaction = data.res.rows.item(i);
+                    yield this.http
+                        .post(this.configuration.API_ENDPOINT + '/tank-refills/', transaction)
+                        .toPromise();
+                    let update_query = 'UPDATE refills SET synced_at = (?) WHERE transaction_id = (?)';
+                    let datePipe = new __WEBPACK_IMPORTED_MODULE_3__angular_common__["c" /* DatePipe */](this.configuration.LOCALE);
+                    let promise = yield this.storage.executeSql(update_query, [
+                        datePipe.transform(Date.now(), 'y-MM-dd HH:mm:ss'),
+                        transaction.transaction_id
+                    ]);
+                    promises.push(promise);
+                }
+                return promises;
+            }));
+            return Promise.all(transactions);
+        });
+    }
+    uploadRefills() {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('[TransactionService] - upload() :: Finding non-synced transactions');
+            let select_query = `SELECT * FROM refills WHERE synced_at IS NULL`;
+            let transactions = yield this.storage.executeSql(select_query).then((data) => __awaiter(this, void 0, void 0, function* () {
+                console.log('[TransactionService] - upload() :: Found non-synced refill transaction:', data.res.rows.length);
+                let promises = [];
+                for (let i = 0; i < data.res.rows.length; i++) {
+                    let transaction = data.res.rows.item(i);
+                    yield this.http
+                        .post(this.configuration.API_ENDPOINT + '/tank-refills/', transaction)
+                        .toPromise();
+                    let update_query = 'UPDATE refills SET synced_at = (?) WHERE transaction_id = (?)';
+                    let datePipe = new __WEBPACK_IMPORTED_MODULE_3__angular_common__["c" /* DatePipe */](this.configuration.LOCALE);
+                    let promise = yield this.storage.executeSql(update_query, [
+                        datePipe.transform(Date.now(), 'y-MM-dd HH:mm:ss'),
+                        transaction.transaction_id
+                    ]);
+                    promises.push(promise);
+                }
+                return promises;
+            }));
+            return Promise.all(transactions);
+        });
+    }
+};
+TransactionService = __decorate([
+    Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["I" /* Injectable */])(), 
+    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_2__angular_http__["a" /* Http */], __WEBPACK_IMPORTED_MODULE_4__config__["a" /* Config */], __WEBPACK_IMPORTED_MODULE_5__sql_service__["a" /* SqlService */]])
+], TransactionService);
+//# sourceMappingURL=transaction-service.js.map
+
+/***/ }),
+
+/***/ 133:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return TimesheetService; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__ = __webpack_require__(72);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(37);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_common__ = __webpack_require__(66);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__sql_service__ = __webpack_require__(60);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__config__ = __webpack_require__(51);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -229,7 +479,7 @@ TimesheetService = __decorate([
 
 /***/ }),
 
-/***/ 133:
+/***/ 134:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -347,18 +597,18 @@ class BluetoothResponse {
 
 /***/ }),
 
-/***/ 223:
+/***/ 135:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return TransactionService; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__ = __webpack_require__(71);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return TankService; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__ = __webpack_require__(224);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(37);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_common__ = __webpack_require__(64);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ionic_angular__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__config__ = __webpack_require__(51);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__sql_service__ = __webpack_require__(59);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__sql_service__ = __webpack_require__(60);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -382,144 +632,92 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 
 
 
-let TransactionService = class TransactionService {
-    constructor(http, configuration, storage) {
-        console.log('[TransactionService] - constructor() :: ');
+let TankService = class TankService {
+    constructor(http, configuration, storage, events) {
+        this.in_progress = false;
+        console.log('[TankService] - constructor() :: ');
         this.http = http;
         this.configuration = configuration;
         this.storage = storage;
+        this.events = events;
     }
     init() {
-        console.log('[TransactionService] - init() :: Preparing database table');
-        return this.storage.executeSql(`CREATE TABLE IF NOT EXISTS transactions (
-            transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            pad_id TEXT,
-            operator_id INTEGER,
-            plant_id INTEGER,
-            trailer_id INTEGER,
-            odometer INTEGER,
-            battery_percentage INTEGER,
-            long TEXT,
-            lat TEXT,
-            end_value TEXT,
-            end_total_value TEXT,
-            transaction_end_date TEXT,
-            synced_at TEXT
-        )`);
+        console.log('[TankService] - init() :: Preparing database table');
+        return this.storage.executeSql('CREATE TABLE IF NOT EXISTS tanks (id INTEGER PRIMARY KEY, trailer_id INTEGER, trailer_no INTEGER, trailer_name TEXT)');
     }
-    create(transaction) {
+    load() {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log('[TransactionService] - create() :: Creating transaction in the cache:', transaction);
-            let datePipe = new __WEBPACK_IMPORTED_MODULE_3__angular_common__["c" /* DatePipe */](this.configuration.LOCALE);
-            // transaction.transaction_end_date is a timestamp, but in local time ...
-            let transaction_end_date = transaction.transaction_end_date;
-            transaction_end_date = transaction_end_date + (new Date()).getTimezoneOffset() * 60;
-            transaction.transaction_end_date = datePipe.transform(new Date(transaction_end_date * 1000), 'y-MM-dd HH:mm:ss');
-            let insert_query = `INSERT INTO transactions (
-            pad_id, 
-            operator_id, 
-            plant_id, 
-            trailer_id, 
-            odometer, 
-            battery_percentage, 
-            long, 
-            lat, 
-            end_value, 
-            end_total_value, 
-            transaction_end_date
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-            let result = yield this.storage.executeSql(insert_query, [
-                transaction.pad_id,
-                transaction.operator_id,
-                transaction.plant_id,
-                transaction.trailer_id,
-                transaction.odometer,
-                transaction.battery_percentage,
-                transaction.long,
-                transaction.lat,
-                transaction.end_value,
-                transaction.end_total_value,
-                transaction.transaction_end_date
-            ]);
-            console.log('[TransactionService] - create() :: Transaction created in the cache:', transaction);
-            try {
-                console.log('[TransactionService] - create() :: Uploading transaction in the API:', result);
-                transaction.transaction_id = result.res.insertId;
-                let api_result = yield this.http
-                    .post(this.configuration.API_ENDPOINT + '/transaction/', transaction)
-                    .toPromise();
-                console.log('[TransactionService] - create() :: Transaction uploaded to the API:', api_result);
-                console.log('[TransactionService] - create() :: Marking transaction in the cache as synced:', api_result);
-                let update_query = 'UPDATE transactions SET synced_at = (?) WHERE transaction_id = (?)';
-                result = yield this.storage.executeSql(update_query, [datePipe.transform(Date.now(), 'y-MM-dd HH:mm:ss'), transaction.transaction_id]);
-                console.log('[TransactionService] - create() :: Transaction marked in the cache as synced:', result);
-                console.info('[TransactionService] - create() :: Transaction uploaded and marked as synced');
+            console.log('[TankService] - load() :: Loading tanks from the API');
+            if (this.in_progress) {
+                console.log('[TankService] - load() :: Loading is already in progress, exit.');
+                return null;
             }
-            catch (exception) {
-                console.warn('[TransactionService] - create() :: Failed to create transaction in the API:', transaction, exception);
-            }
-            return result;
+            this.in_progress = true;
+            let result = yield this.http
+                .get(`${this.configuration.API_ENDPOINT}/tanks-dep/${this.configuration.DEPARTMENT_ID}`)
+                .toPromise();
+            console.log('[TankService] - load() :: Tanks loaded from the API.');
+            console.log('[TankService] - load() :: Deleting tanks from the cache.');
+            yield this.deleteAll();
+            console.log('[TankService] - load() :: Tanks deleted from the cache.');
+            console.log('[TankService] - load() :: Creating tanks in the cache.');
+            let promises = result.json().Tank.map((item) => __awaiter(this, void 0, void 0, function* () {
+                yield this.create(item);
+            }));
+            console.info('[TankService] - load() :: Tanks loaded from the API and cached.');
+            this.events.publish('tanks:loaded');
+            console.info('[TankService] - load() :: Event "tanks:loaded" published.');
+            this.in_progress = false;
+            return Promise.all(promises);
         });
     }
-    upload() {
+    findAll() {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log('[TransactionService] - upload() :: Finding non-synced transactions');
-            let select_query = `SELECT 
-                          transaction_id, 
-                          pad_id, 
-                          operator_id, 
-                          plant_id, 
-                          trailer_id, 
-                          odometer, 
-                          battery_percentage, 
-                          long, 
-                          lat, 
-                          end_value, 
-                          end_total_value, 
-                          transaction_end_date, 
-                          synced_at 
-                          FROM transactions WHERE synced_at IS NULL`;
-            let transactions = yield this.storage.executeSql(select_query).then((data) => __awaiter(this, void 0, void 0, function* () {
-                console.log('[TransactionService] - upload() :: Found non-synced transaction:', data.res.rows.length);
-                let promises = [];
-                for (let i = 0; i < data.res.rows.length; i++) {
-                    let transaction = data.res.rows.item(i);
-                    yield this.http
-                        .post(this.configuration.API_ENDPOINT + '/transaction/', transaction)
-                        .toPromise();
-                    let update_query = 'UPDATE transactions SET synced_at = (?) WHERE transaction_id = (?)';
-                    let datePipe = new __WEBPACK_IMPORTED_MODULE_3__angular_common__["c" /* DatePipe */](this.configuration.LOCALE);
-                    let promise = yield this.storage.executeSql(update_query, [
-                        datePipe.transform(Date.now(), 'y-MM-dd HH:mm:ss'),
-                        transaction.transaction_id
-                    ]);
-                    promises.push(promise);
-                }
-                return promises;
-            }));
-            return Promise.all(transactions);
+            let query = 'SELECT trailer_id, trailer_no, trailer_name FROM tanks';
+            return this.storage.executeSql(query);
+        });
+    }
+    find(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let query = 'SELECT trailer_id, trailer_no, trailer_name FROM tanks WHERE trailer_id = (?)';
+            return this.storage.executeSql(query, [id]);
+        });
+    }
+    deleteAll() {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('[TankService] - deleteAll() :: Deleting tanks from the cache.');
+            return Promise.all([
+                this.storage.executeSql('DELETE FROM tanks'),
+                this.storage.executeSql('DELETE FROM SQLITE_SEQUENCE WHERE name="tanks"')
+            ]);
+        });
+    }
+    create(tank) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let query = 'INSERT INTO tanks (trailer_id, trailer_no, trailer_name) VALUES (?, ?, ?)';
+            return this.storage.executeSql(query, [tank.trailer_id, tank.trailer_no, tank.trailer_name]);
         });
     }
 };
-TransactionService = __decorate([
+TankService = __decorate([
     Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["I" /* Injectable */])(), 
-    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_2__angular_http__["a" /* Http */], __WEBPACK_IMPORTED_MODULE_4__config__["a" /* Config */], __WEBPACK_IMPORTED_MODULE_5__sql_service__["a" /* SqlService */]])
-], TransactionService);
-//# sourceMappingURL=transaction-service.js.map
+    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_2__angular_http__["a" /* Http */], __WEBPACK_IMPORTED_MODULE_4__config__["a" /* Config */], __WEBPACK_IMPORTED_MODULE_5__sql_service__["a" /* SqlService */], __WEBPACK_IMPORTED_MODULE_3_ionic_angular__["b" /* Events */]])
+], TankService);
+//# sourceMappingURL=tank-service.js.map
 
 /***/ }),
 
-/***/ 224:
+/***/ 225:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return BluetoothService; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map__ = __webpack_require__(71);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map__ = __webpack_require__(72);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__ = __webpack_require__(133);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__ionic_storage__ = __webpack_require__(184);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__ = __webpack_require__(134);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__ionic_storage__ = __webpack_require__(186);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -885,127 +1083,17 @@ BluetoothService = __decorate([
 
 /***/ }),
 
-/***/ 225:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return TankService; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__ = __webpack_require__(222);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(37);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ionic_angular__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__config__ = __webpack_require__(51);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__sql_service__ = __webpack_require__(59);
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments)).next());
-    });
-};
-
-
-
-
-
-
-let TankService = class TankService {
-    constructor(http, configuration, storage, events) {
-        this.in_progress = false;
-        console.log('[TankService] - constructor() :: ');
-        this.http = http;
-        this.configuration = configuration;
-        this.storage = storage;
-        this.events = events;
-    }
-    init() {
-        console.log('[TankService] - init() :: Preparing database table');
-        return this.storage.executeSql('CREATE TABLE IF NOT EXISTS tanks (id INTEGER PRIMARY KEY, trailer_id INTEGER, trailer_no INTEGER, trailer_name TEXT)');
-    }
-    load() {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log('[TankService] - load() :: Loading tanks from the API');
-            if (this.in_progress) {
-                console.log('[TankService] - load() :: Loading is already in progress, exit.');
-                return null;
-            }
-            this.in_progress = true;
-            let result = yield this.http
-                .get(`${this.configuration.API_ENDPOINT}/tanks-dep/${this.configuration.DEPARTMENT_ID}`)
-                .toPromise();
-            console.log('[TankService] - load() :: Tanks loaded from the API.');
-            console.log('[TankService] - load() :: Deleting tanks from the cache.');
-            yield this.deleteAll();
-            console.log('[TankService] - load() :: Tanks deleted from the cache.');
-            console.log('[TankService] - load() :: Creating tanks in the cache.');
-            let promises = result.json().Tank.map((item) => __awaiter(this, void 0, void 0, function* () {
-                yield this.create(item);
-            }));
-            console.info('[TankService] - load() :: Tanks loaded from the API and cached.');
-            this.events.publish('tanks:loaded');
-            console.info('[TankService] - load() :: Event "tanks:loaded" published.');
-            this.in_progress = false;
-            return Promise.all(promises);
-        });
-    }
-    findAll() {
-        return __awaiter(this, void 0, void 0, function* () {
-            let query = 'SELECT trailer_id, trailer_no, trailer_name FROM tanks';
-            return this.storage.executeSql(query);
-        });
-    }
-    find(id) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let query = 'SELECT trailer_id, trailer_no, trailer_name FROM tanks WHERE trailer_id = (?)';
-            return this.storage.executeSql(query, [id]);
-        });
-    }
-    deleteAll() {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log('[TankService] - deleteAll() :: Deleting tanks from the cache.');
-            return Promise.all([
-                this.storage.executeSql('DELETE FROM tanks'),
-                this.storage.executeSql('DELETE FROM SQLITE_SEQUENCE WHERE name="tanks"')
-            ]);
-        });
-    }
-    create(tank) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let query = 'INSERT INTO tanks (trailer_id, trailer_no, trailer_name) VALUES (?, ?, ?)';
-            return this.storage.executeSql(query, [tank.trailer_id, tank.trailer_no, tank.trailer_name]);
-        });
-    }
-};
-TankService = __decorate([
-    Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["I" /* Injectable */])(), 
-    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_2__angular_http__["a" /* Http */], __WEBPACK_IMPORTED_MODULE_4__config__["a" /* Config */], __WEBPACK_IMPORTED_MODULE_5__sql_service__["a" /* SqlService */], __WEBPACK_IMPORTED_MODULE_3_ionic_angular__["b" /* Events */]])
-], TankService);
-//# sourceMappingURL=tank-service.js.map
-
-/***/ }),
-
 /***/ 226:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return DipReadingService; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__ = __webpack_require__(71);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__ = __webpack_require__(72);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(37);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_common__ = __webpack_require__(64);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__sql_service__ = __webpack_require__(59);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_common__ = __webpack_require__(66);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__sql_service__ = __webpack_require__(60);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__config__ = __webpack_require__(51);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -1131,10 +1219,10 @@ webpackEmptyAsyncContext.id = 243;
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return LoginPage; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__tabs_tabs__ = __webpack_require__(490);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__providers_operator_service__ = __webpack_require__(72);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_configuration_service__ = __webpack_require__(70);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__providers_operator_service__ = __webpack_require__(61);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_configuration_service__ = __webpack_require__(59);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1213,10 +1301,11 @@ LoginPage = __decorate([
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return TabsPage; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__transaction_transaction__ = __webpack_require__(491);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__timesheet_timesheet__ = __webpack_require__(492);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__dipreading_dipreading__ = __webpack_require__(493);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__tanktotank_tanktotank__ = __webpack_require__(494);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1231,17 +1320,19 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 
 
 
+
 let TabsPage = class TabsPage {
     constructor(popoverController) {
         this.popoverController = popoverController;
         this.transaction = __WEBPACK_IMPORTED_MODULE_2__transaction_transaction__["a" /* CreateTransactionPage */];
         this.timesheet = __WEBPACK_IMPORTED_MODULE_3__timesheet_timesheet__["a" /* CreateTimesheetPage */];
         this.dipreading = __WEBPACK_IMPORTED_MODULE_4__dipreading_dipreading__["a" /* CreateDipReadingPage */];
+        this.tanktotank = __WEBPACK_IMPORTED_MODULE_5__tanktotank_tanktotank__["a" /* CreateTankToTankPage */];
     }
 };
 TabsPage = __decorate([
     Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* Component */])({
-        selector: 'page-tabs',template:/*ion-inline-start:"D:\Taylor\Documents\Websites\fuelit\fuelit-aeroworks\src\pages\tabs\tabs.html"*/'<ion-tabs class="tabs-basic">\n    <ion-tab tabTitle="Transaction" [root]="transaction"></ion-tab>\n    <ion-tab tabTitle="Dip Readings" [root]="dipreading"></ion-tab>\n</ion-tabs>'/*ion-inline-end:"D:\Taylor\Documents\Websites\fuelit\fuelit-aeroworks\src\pages\tabs\tabs.html"*/
+        selector: 'page-tabs',template:/*ion-inline-start:"D:\Taylor\Documents\Websites\fuelit\fuelit-aeroworks\src\pages\tabs\tabs.html"*/'<ion-tabs class="tabs-basic">\n    <ion-tab tabTitle="Transaction" [root]="transaction"></ion-tab>\n    <ion-tab tabTitle="Tank To Tank" [root]="tanktotank"></ion-tab>\n</ion-tabs>'/*ion-inline-end:"D:\Taylor\Documents\Websites\fuelit\fuelit-aeroworks\src\pages\tabs\tabs.html"*/
     }), 
     __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["h" /* PopoverController */]])
 ], TabsPage);
@@ -1256,13 +1347,13 @@ TabsPage = __decorate([
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return CreateTransactionPage; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__providers_configuration_service__ = __webpack_require__(70);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__providers_configuration_service__ = __webpack_require__(59);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__providers_plant_service__ = __webpack_require__(131);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_transaction_service__ = __webpack_require__(223);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__providers_operator_service__ = __webpack_require__(72);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__providers_timesheet_service__ = __webpack_require__(132);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__providers_bluetooth_service__ = __webpack_require__(224);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_transaction_service__ = __webpack_require__(132);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__providers_operator_service__ = __webpack_require__(61);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__providers_timesheet_service__ = __webpack_require__(133);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__providers_bluetooth_service__ = __webpack_require__(225);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_ionic_native__ = __webpack_require__(41);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -1314,7 +1405,7 @@ let CreateTransactionPage = class CreateTransactionPage {
         this.configurationService.get('operator').then(operator => {
             console.log('[CreateTransactionPage] - constructor() :: operator:', operator);
             this.operator = operator;
-            this.transactionForm.patchValue({ driver_name: `${this.operator.first_name} ${this.operator.last_name}` });
+            this.transactionForm.patchValue({ driver_name: `${this.operator.name}` });
         });
         this.configurationService.get('plant').then(plant_id => {
             console.log('[CreateTransactionPage] - constructor() :: plant_id:', plant_id);
@@ -1514,11 +1605,11 @@ CreateTransactionPage = __decorate([
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return CreateTimesheetPage; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__providers_plant_service__ = __webpack_require__(131);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__providers_operator_service__ = __webpack_require__(72);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_timesheet_service__ = __webpack_require__(132);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__providers_configuration_service__ = __webpack_require__(70);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__providers_operator_service__ = __webpack_require__(61);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_timesheet_service__ = __webpack_require__(133);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__providers_configuration_service__ = __webpack_require__(59);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1635,11 +1726,11 @@ CreateTimesheetPage = __decorate([
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return CreateDipReadingPage; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__providers_tank_service__ = __webpack_require__(225);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__providers_operator_service__ = __webpack_require__(72);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__providers_tank_service__ = __webpack_require__(135);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__providers_operator_service__ = __webpack_require__(61);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_dipreading_service__ = __webpack_require__(226);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__providers_configuration_service__ = __webpack_require__(70);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__providers_configuration_service__ = __webpack_require__(59);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1740,9 +1831,120 @@ CreateDipReadingPage = __decorate([
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return CreateTankToTankPage; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__providers_tank_service__ = __webpack_require__(135);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__providers_operator_service__ = __webpack_require__(61);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_transaction_service__ = __webpack_require__(132);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__providers_configuration_service__ = __webpack_require__(59);
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+
+
+
+
+
+
+
+
+
+
+let CreateTankToTankPage = class CreateTankToTankPage {
+    constructor(events, builder, toastController, tankService, operatorService, transactionService, configurationService) {
+        this.events = events;
+        this.builder = builder;
+        this.toastController = toastController;
+        this.tankService = tankService;
+        this.operatorService = operatorService;
+        this.transactionService = transactionService;
+        this.configurationService = configurationService;
+        this.tankToTankForm = builder.group({
+            'from_trailer_id': new __WEBPACK_IMPORTED_MODULE_1__angular_forms__["b" /* FormControl */]('', __WEBPACK_IMPORTED_MODULE_1__angular_forms__["g" /* Validators */].required),
+            'to_trailer_id': new __WEBPACK_IMPORTED_MODULE_1__angular_forms__["b" /* FormControl */]('', __WEBPACK_IMPORTED_MODULE_1__angular_forms__["g" /* Validators */].required),
+            'amount': new __WEBPACK_IMPORTED_MODULE_1__angular_forms__["b" /* FormControl */]('', __WEBPACK_IMPORTED_MODULE_1__angular_forms__["g" /* Validators */].required)
+        });
+        this.events.subscribe('tanks:loaded', event => this.populateTanks(event));
+        this.populateTanks(null);
+        configurationService.get('operator').then(operator => {
+            this.operator = operator;
+        });
+        this.configurationService.get('tank').then(trailer_id => {
+            console.log('[CreateTankToTankPage] - constructor() :: trailer_id: ', trailer_id);
+            this.tankToTankForm.patchValue({ from_trailer_id: trailer_id });
+        });
+    }
+    populateTanks(events) {
+        console.log(`[CreateTankToTankPage] - populateTanks() :: Attempt to load tanks from cache, with mode ${events}`);
+        this.tankService.findAll().then(data => {
+            console.log(`[CreateTankToTankPage] - populateTanks() :: Found ${data.res.rows.length} tanks in cache.`);
+            this.tanks = [];
+            for (let i = 0; i < data.res.rows.length; i++) {
+                this.tanks.push({
+                    "trailer_id": data.res.rows.item(i).trailer_id,
+                    "trailer_no": data.res.rows.item(i).trailer_no,
+                    "trailer_name": data.res.rows.item(i).trailer_name,
+                });
+            }
+            console.log(`[CreateTankToTankPage] - populateTanks() :: Tanks found are ${this.tanks}`);
+        });
+    }
+    openSettings(event) {
+        console.log('[CreateTankToTankPage] - openSettings()');
+        this.events.publish('settings:open', event);
+    }
+    onSubmit(data) {
+        console.log('[CreateTankToTankPage] - onSubmit() :: Attempt to create TankToTank from data ', data);
+        let refill = {
+            from_trailer_id: data.from_trailer_id,
+            to_trailer_id: data.to_trailer_id,
+            operator_id: this.operator.operator_id,
+            amount: data.amount
+        };
+        this.transactionService.createRefill(refill).then(result => {
+            let toast = this.toastController.create({
+                message: 'Transaction saved!',
+                duration: 2000
+            });
+            toast.present();
+            this.tankToTankForm.patchValue({ from_trailer_id: null });
+            this.tankToTankForm.patchValue({ to_trailer_id: null });
+            this.tankToTankForm.patchValue({ amount: null });
+        }, failure => {
+            let toast = this.toastController.create({
+                message: 'Error saving transaction!',
+                duration: 2000,
+                cssClass: 'toast-error'
+            });
+            toast.present();
+        });
+    }
+};
+CreateTankToTankPage = __decorate([
+    Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* Component */])({
+        selector: 'page-tanktotank',template:/*ion-inline-start:"D:\Taylor\Documents\Websites\fuelit\fuelit-aeroworks\src\pages\tanktotank\create.html"*/'<ion-header>\n    <ion-toolbar   color="primary">\n        <ion-title>Tank To Tank Transaction</ion-title>\n        <ion-buttons end>\n            <button royal (click)="openSettings($event)" ion-button>\n                <ion-icon name="more"></ion-icon>\n            </button>\n        </ion-buttons>\n    </ion-toolbar>\n</ion-header>\n\n<ion-content padding class="form">\n    <ion-list>\n\n        <form [formGroup]="tankToTankForm" (ngSubmit)="onSubmit(tankToTankForm.value)">\n               \n\n            <ion-item>\n                <ion-label floating>From Tank</ion-label>\n                <ion-select formControlName="from_trailer_id">\n                    <ion-option *ngFor="let tank of tanks" value="{{tank.trailer_id}}">{{tank.trailer_name}}</ion-option>\n                </ion-select>\n            </ion-item>\n\n            <ion-item>\n                <ion-label floating>To Tank</ion-label>\n                <ion-select formControlName="to_trailer_id">\n                    <ion-option *ngFor="let tank of tanks" value="{{tank.trailer_id}}">{{tank.trailer_name}}</ion-option>\n                </ion-select>\n            </ion-item>            \n            \n            \n            <ion-item>\n                <ion-label>Amount (L)</ion-label>\n                <ion-input type="number" formControlName="amount"></ion-input>\n            </ion-item>\n\n            <ion-item>\n                <button type="submit" block [disabled]="!tankToTankForm.valid" ion-button>Refill Complete</button>\n            </ion-item>\n        </form>\n\n    </ion-list>\n</ion-content>\n'/*ion-inline-end:"D:\Taylor\Documents\Websites\fuelit\fuelit-aeroworks\src\pages\tanktotank\create.html"*/
+    }), 
+    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_2_ionic_angular__["b" /* Events */], __WEBPACK_IMPORTED_MODULE_1__angular_forms__["a" /* FormBuilder */], __WEBPACK_IMPORTED_MODULE_2_ionic_angular__["i" /* ToastController */], __WEBPACK_IMPORTED_MODULE_3__providers_tank_service__["a" /* TankService */], __WEBPACK_IMPORTED_MODULE_4__providers_operator_service__["a" /* OperatorService */], __WEBPACK_IMPORTED_MODULE_5__providers_transaction_service__["a" /* TransactionService */], __WEBPACK_IMPORTED_MODULE_6__providers_configuration_service__["a" /* ConfigurationService */]])
+], CreateTankToTankPage);
+//# sourceMappingURL=tanktotank.js.map
+
+/***/ }),
+
+/***/ 495:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return SettingsPage; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(11);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1786,13 +1988,13 @@ SettingsPage = __decorate([
 
 /***/ }),
 
-/***/ 495:
+/***/ 496:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_platform_browser_dynamic__ = __webpack_require__(496);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__app_module__ = __webpack_require__(594);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_platform_browser_dynamic__ = __webpack_require__(497);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__app_module__ = __webpack_require__(595);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_core__ = __webpack_require__(0);
 
 
@@ -1843,8 +2045,192 @@ Config = __decorate([
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ConfigurationService; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ionic_storage__ = __webpack_require__(186);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map__ = __webpack_require__(72);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map__);
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments)).next());
+    });
+};
+
+
+
+let ConfigurationService = class ConfigurationService {
+    constructor(storage) {
+        console.log('[ConfigurationService] - constructor() ::');
+        this.storage = storage;
+    }
+    get(key) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('[ConfigurationService] - get() :: ', key);
+            let result = yield this.storage.get(key);
+            return new Promise(resolve => {
+                resolve(JSON.parse(result));
+            });
+        });
+    }
+    set(key, value) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('[ConfigurationService] - set() :: ', key, value);
+            this.storage.set(key, JSON.stringify(value));
+        });
+    }
+    remove(key) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.storage.remove(key);
+        });
+    }
+};
+ConfigurationService = __decorate([
+    Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* Injectable */])(), 
+    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_1__ionic_storage__["a" /* Storage */]])
+], ConfigurationService);
+//# sourceMappingURL=configuration-service.js.map
+
+/***/ }),
+
+/***/ 595:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return AppModule; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_http__ = __webpack_require__(37);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ionic_storage__ = __webpack_require__(186);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ionic_angular__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_ionic_native__ = __webpack_require__(41);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__app_component__ = __webpack_require__(641);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__pages_login_login__ = __webpack_require__(489);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__pages_settings_settings__ = __webpack_require__(495);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__pages_tabs_tabs__ = __webpack_require__(490);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__pages_timesheet_timesheet__ = __webpack_require__(492);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__pages_transaction_transaction__ = __webpack_require__(491);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__pages_dipreading_dipreading__ = __webpack_require__(493);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__pages_tanktotank_tanktotank__ = __webpack_require__(494);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__pipes__ = __webpack_require__(643);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__config__ = __webpack_require__(51);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__providers_configuration_service__ = __webpack_require__(59);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__providers_operator_service__ = __webpack_require__(61);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__providers_plant_service__ = __webpack_require__(131);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__providers_tank_service__ = __webpack_require__(135);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_19__providers_timesheet_service__ = __webpack_require__(133);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_20__providers_dipreading_service__ = __webpack_require__(226);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_21__providers_transaction_service__ = __webpack_require__(132);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_22__providers_sql_service__ = __webpack_require__(60);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_23__providers_bluetooth_service__ = __webpack_require__(225);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_24__providers_rollbar_service__ = __webpack_require__(644);
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+let AppModule = class AppModule {
+};
+AppModule = __decorate([
+    Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Q" /* NgModule */])({
+        declarations: [
+            __WEBPACK_IMPORTED_MODULE_5__app_component__["a" /* FuelITApp */],
+            __WEBPACK_IMPORTED_MODULE_6__pages_login_login__["a" /* LoginPage */],
+            __WEBPACK_IMPORTED_MODULE_7__pages_settings_settings__["a" /* SettingsPage */],
+            __WEBPACK_IMPORTED_MODULE_8__pages_tabs_tabs__["a" /* TabsPage */],
+            __WEBPACK_IMPORTED_MODULE_9__pages_timesheet_timesheet__["a" /* CreateTimesheetPage */],
+            __WEBPACK_IMPORTED_MODULE_10__pages_transaction_transaction__["a" /* CreateTransactionPage */],
+            __WEBPACK_IMPORTED_MODULE_11__pages_dipreading_dipreading__["a" /* CreateDipReadingPage */],
+            __WEBPACK_IMPORTED_MODULE_12__pages_tanktotank_tanktotank__["a" /* CreateTankToTankPage */],
+            __WEBPACK_IMPORTED_MODULE_13__pipes__["a" /* CapitalizePipe */]
+        ],
+        imports: [
+            __WEBPACK_IMPORTED_MODULE_3_ionic_angular__["d" /* IonicModule */].forRoot(__WEBPACK_IMPORTED_MODULE_5__app_component__["a" /* FuelITApp */], { scrollAssist: false }, {
+                links: []
+            }),
+            __WEBPACK_IMPORTED_MODULE_1__angular_http__["b" /* HttpModule */]
+        ],
+        bootstrap: [__WEBPACK_IMPORTED_MODULE_3_ionic_angular__["c" /* IonicApp */]],
+        entryComponents: [
+            __WEBPACK_IMPORTED_MODULE_5__app_component__["a" /* FuelITApp */],
+            __WEBPACK_IMPORTED_MODULE_6__pages_login_login__["a" /* LoginPage */],
+            __WEBPACK_IMPORTED_MODULE_7__pages_settings_settings__["a" /* SettingsPage */],
+            __WEBPACK_IMPORTED_MODULE_8__pages_tabs_tabs__["a" /* TabsPage */],
+            __WEBPACK_IMPORTED_MODULE_9__pages_timesheet_timesheet__["a" /* CreateTimesheetPage */],
+            __WEBPACK_IMPORTED_MODULE_10__pages_transaction_transaction__["a" /* CreateTransactionPage */],
+            __WEBPACK_IMPORTED_MODULE_11__pages_dipreading_dipreading__["a" /* CreateDipReadingPage */],
+            __WEBPACK_IMPORTED_MODULE_12__pages_tanktotank_tanktotank__["a" /* CreateTankToTankPage */]
+        ],
+        providers: [
+            __WEBPACK_IMPORTED_MODULE_15__providers_configuration_service__["a" /* ConfigurationService */],
+            __WEBPACK_IMPORTED_MODULE_16__providers_operator_service__["a" /* OperatorService */],
+            __WEBPACK_IMPORTED_MODULE_17__providers_plant_service__["a" /* PlantService */],
+            __WEBPACK_IMPORTED_MODULE_18__providers_tank_service__["a" /* TankService */],
+            __WEBPACK_IMPORTED_MODULE_19__providers_timesheet_service__["a" /* TimesheetService */],
+            __WEBPACK_IMPORTED_MODULE_20__providers_dipreading_service__["a" /* DipReadingService */],
+            __WEBPACK_IMPORTED_MODULE_21__providers_transaction_service__["a" /* TransactionService */],
+            __WEBPACK_IMPORTED_MODULE_22__providers_sql_service__["a" /* SqlService */],
+            __WEBPACK_IMPORTED_MODULE_14__config__["a" /* Config */],
+            __WEBPACK_IMPORTED_MODULE_2__ionic_storage__["a" /* Storage */],
+            __WEBPACK_IMPORTED_MODULE_4_ionic_native__["e" /* SQLite */],
+            __WEBPACK_IMPORTED_MODULE_4_ionic_native__["b" /* Geolocation */],
+            __WEBPACK_IMPORTED_MODULE_23__providers_bluetooth_service__["a" /* BluetoothService */],
+            { provide: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* ErrorHandler */], useClass: __WEBPACK_IMPORTED_MODULE_24__providers_rollbar_service__["a" /* RollbarErrorHandler */] }
+        ]
+    }), 
+    __metadata('design:paramtypes', [])
+], AppModule);
+//# sourceMappingURL=app.module.js.map
+
+/***/ }),
+
+/***/ 60:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return SqlService; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__ = __webpack_require__(71);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__ = __webpack_require__(72);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(37);
@@ -1913,35 +2299,17 @@ SqlService = __decorate([
 
 /***/ }),
 
-/***/ 594:
+/***/ 61:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return AppModule; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_http__ = __webpack_require__(37);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ionic_storage__ = __webpack_require__(184);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ionic_angular__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_ionic_native__ = __webpack_require__(41);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__app_component__ = __webpack_require__(640);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__pages_login_login__ = __webpack_require__(489);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__pages_settings_settings__ = __webpack_require__(494);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__pages_tabs_tabs__ = __webpack_require__(490);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__pages_timesheet_timesheet__ = __webpack_require__(492);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__pages_transaction_transaction__ = __webpack_require__(491);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__pages_dipreading_dipreading__ = __webpack_require__(493);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__pipes__ = __webpack_require__(642);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__config__ = __webpack_require__(51);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__providers_configuration_service__ = __webpack_require__(70);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__providers_operator_service__ = __webpack_require__(72);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__providers_plant_service__ = __webpack_require__(131);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__providers_tank_service__ = __webpack_require__(225);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__providers_timesheet_service__ = __webpack_require__(132);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_19__providers_dipreading_service__ = __webpack_require__(226);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_20__providers_transaction_service__ = __webpack_require__(223);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_21__providers_sql_service__ = __webpack_require__(59);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_22__providers_bluetooth_service__ = __webpack_require__(224);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_23__providers_rollbar_service__ = __webpack_require__(643);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return OperatorService; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__ = __webpack_require__(224);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(37);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__sql_service__ = __webpack_require__(60);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__config__ = __webpack_require__(51);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1951,103 +2319,109 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-let AppModule = class AppModule {
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments)).next());
+    });
 };
-AppModule = __decorate([
-    Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Q" /* NgModule */])({
-        declarations: [
-            __WEBPACK_IMPORTED_MODULE_5__app_component__["a" /* FuelITApp */],
-            __WEBPACK_IMPORTED_MODULE_6__pages_login_login__["a" /* LoginPage */],
-            __WEBPACK_IMPORTED_MODULE_7__pages_settings_settings__["a" /* SettingsPage */],
-            __WEBPACK_IMPORTED_MODULE_8__pages_tabs_tabs__["a" /* TabsPage */],
-            __WEBPACK_IMPORTED_MODULE_9__pages_timesheet_timesheet__["a" /* CreateTimesheetPage */],
-            __WEBPACK_IMPORTED_MODULE_10__pages_transaction_transaction__["a" /* CreateTransactionPage */],
-            __WEBPACK_IMPORTED_MODULE_11__pages_dipreading_dipreading__["a" /* CreateDipReadingPage */],
-            __WEBPACK_IMPORTED_MODULE_12__pipes__["a" /* CapitalizePipe */]
-        ],
-        imports: [
-            __WEBPACK_IMPORTED_MODULE_3_ionic_angular__["d" /* IonicModule */].forRoot(__WEBPACK_IMPORTED_MODULE_5__app_component__["a" /* FuelITApp */], { scrollAssist: false }, {
-                links: []
-            }),
-            __WEBPACK_IMPORTED_MODULE_1__angular_http__["b" /* HttpModule */]
-        ],
-        bootstrap: [__WEBPACK_IMPORTED_MODULE_3_ionic_angular__["c" /* IonicApp */]],
-        entryComponents: [
-            __WEBPACK_IMPORTED_MODULE_5__app_component__["a" /* FuelITApp */],
-            __WEBPACK_IMPORTED_MODULE_6__pages_login_login__["a" /* LoginPage */],
-            __WEBPACK_IMPORTED_MODULE_7__pages_settings_settings__["a" /* SettingsPage */],
-            __WEBPACK_IMPORTED_MODULE_8__pages_tabs_tabs__["a" /* TabsPage */],
-            __WEBPACK_IMPORTED_MODULE_9__pages_timesheet_timesheet__["a" /* CreateTimesheetPage */],
-            __WEBPACK_IMPORTED_MODULE_10__pages_transaction_transaction__["a" /* CreateTransactionPage */],
-            __WEBPACK_IMPORTED_MODULE_11__pages_dipreading_dipreading__["a" /* CreateDipReadingPage */]
-        ],
-        providers: [
-            __WEBPACK_IMPORTED_MODULE_14__providers_configuration_service__["a" /* ConfigurationService */],
-            __WEBPACK_IMPORTED_MODULE_15__providers_operator_service__["a" /* OperatorService */],
-            __WEBPACK_IMPORTED_MODULE_16__providers_plant_service__["a" /* PlantService */],
-            __WEBPACK_IMPORTED_MODULE_17__providers_tank_service__["a" /* TankService */],
-            __WEBPACK_IMPORTED_MODULE_18__providers_timesheet_service__["a" /* TimesheetService */],
-            __WEBPACK_IMPORTED_MODULE_19__providers_dipreading_service__["a" /* DipReadingService */],
-            __WEBPACK_IMPORTED_MODULE_20__providers_transaction_service__["a" /* TransactionService */],
-            __WEBPACK_IMPORTED_MODULE_21__providers_sql_service__["a" /* SqlService */],
-            __WEBPACK_IMPORTED_MODULE_13__config__["a" /* Config */],
-            __WEBPACK_IMPORTED_MODULE_2__ionic_storage__["a" /* Storage */],
-            __WEBPACK_IMPORTED_MODULE_4_ionic_native__["e" /* SQLite */],
-            __WEBPACK_IMPORTED_MODULE_4_ionic_native__["b" /* Geolocation */],
-            __WEBPACK_IMPORTED_MODULE_22__providers_bluetooth_service__["a" /* BluetoothService */],
-            { provide: __WEBPACK_IMPORTED_MODULE_0__angular_core__["C" /* ErrorHandler */], useClass: __WEBPACK_IMPORTED_MODULE_23__providers_rollbar_service__["a" /* RollbarErrorHandler */] }
-        ]
-    }), 
-    __metadata('design:paramtypes', [])
-], AppModule);
-//# sourceMappingURL=app.module.js.map
+
+
+
+
+
+let OperatorService = class OperatorService {
+    constructor(http, configuration, storage) {
+        this.in_progress = false;
+        console.log('[OperatorService] - constructor() :: ');
+        this.http = http;
+        this.configuration = configuration;
+        this.storage = storage;
+    }
+    init() {
+        console.log('[OperatorService] - init() :: Preparing database table');
+        return this.storage.executeSql('CREATE TABLE IF NOT EXISTS operators (operator_id INTEGER PRIMARY KEY, first_name TEXT, last_name TEXT, pin_no TEXT)');
+    }
+    load() {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('[OperatorService] - load() :: Loading operators from the API');
+            if (this.in_progress) {
+                console.log('[OperatorService] - load() :: Loading is already in progress, exit.');
+                return null;
+            }
+            this.in_progress = true;
+            let result = yield this.http
+                .get(`${this.configuration.API_ENDPOINT}/operators-dep/${this.configuration.DEPARTMENT_ID}`)
+                .toPromise();
+            console.log('[OperatorService] - load() :: Operators loaded from the API');
+            console.log('[OperatorService] - load() :: Deleting operators from the cache');
+            yield this.deleteAll();
+            console.log('[OperatorService] - load() :: Operators deleted from the cache');
+            console.log('[OperatorService] - load() :: Creating operators in the cache.');
+            let promises = result.json().Operators.map((item) => __awaiter(this, void 0, void 0, function* () {
+                yield this.create(item);
+            }));
+            console.info('[OperatorService] - load() :: Operators loaded from the API and cached.');
+            this.in_progress = false;
+            return Promise.all(promises);
+        });
+    }
+    find(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let query = 'SELECT operator_id, first_name, last_name, pin_no FROM operators WHERE operator_id = (?)';
+            return this.storage.executeSql(query, [id]);
+        });
+    }
+    findByPinCode(pin_no) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log(`[OperatorService] - findByPinCode() :: Attempt to find operator with the PIN ${pin_no}`);
+            let query = 'SELECT operator_id, first_name, last_name, pin_no FROM operators WHERE pin_no = (?)';
+            return this.storage.executeSql(query, [pin_no]);
+        });
+    }
+    deleteAll() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return Promise.all([
+                this.storage.executeSql('DELETE FROM operators'),
+                this.storage.executeSql('DELETE FROM SQLITE_SEQUENCE WHERE name="operators"')
+            ]);
+        });
+    }
+    create(operator) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let query = 'INSERT INTO operators (operator_id, first_name, last_name, pin_no) VALUES (?, ?, ?, ?)';
+            return this.storage.executeSql(query, [operator.operator_id, operator.first_name, operator.last_name, operator.pin_no]);
+        });
+    }
+};
+OperatorService = __decorate([
+    Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["I" /* Injectable */])(), 
+    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_2__angular_http__["a" /* Http */], __WEBPACK_IMPORTED_MODULE_4__config__["a" /* Config */], __WEBPACK_IMPORTED_MODULE_3__sql_service__["a" /* SqlService */]])
+], OperatorService);
+//# sourceMappingURL=operator-service.js.map
 
 /***/ }),
 
-/***/ 640:
+/***/ 641:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return FuelITApp; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_native__ = __webpack_require__(41);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__pages_login_login__ = __webpack_require__(489);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__pages_settings_settings__ = __webpack_require__(494);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__pages_settings_settings__ = __webpack_require__(495);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_plant_service__ = __webpack_require__(131);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__providers_operator_service__ = __webpack_require__(72);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__providers_configuration_service__ = __webpack_require__(70);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__providers_transaction_service__ = __webpack_require__(223);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__providers_tank_service__ = __webpack_require__(225);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__providers_timesheet_service__ = __webpack_require__(132);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__providers_operator_service__ = __webpack_require__(61);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__providers_configuration_service__ = __webpack_require__(59);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__providers_transaction_service__ = __webpack_require__(132);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__providers_tank_service__ = __webpack_require__(135);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__providers_timesheet_service__ = __webpack_require__(133);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__providers_dipreading_service__ = __webpack_require__(226);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__providers_bluetooth_service__ = __webpack_require__(224);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__providers_bluetooth_service__ = __webpack_require__(225);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -2212,7 +2586,7 @@ FuelITApp = __decorate([
 
 /***/ }),
 
-/***/ 642:
+/***/ 643:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2244,7 +2618,7 @@ CapitalizePipe = __decorate([
 
 /***/ }),
 
-/***/ 643:
+/***/ 644:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2272,175 +2646,7 @@ RollbarErrorHandler = __decorate([
 ], RollbarErrorHandler);
 //# sourceMappingURL=rollbar-service.js.map
 
-/***/ }),
-
-/***/ 70:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ConfigurationService; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ionic_storage__ = __webpack_require__(184);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map__ = __webpack_require__(71);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map__);
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments)).next());
-    });
-};
-
-
-
-let ConfigurationService = class ConfigurationService {
-    constructor(storage) {
-        console.log('[ConfigurationService] - constructor() ::');
-        this.storage = storage;
-    }
-    get(key) {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log('[ConfigurationService] - get() :: ', key);
-            let result = yield this.storage.get(key);
-            return new Promise(resolve => {
-                resolve(JSON.parse(result));
-            });
-        });
-    }
-    set(key, value) {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log('[ConfigurationService] - set() :: ', key, value);
-            this.storage.set(key, JSON.stringify(value));
-        });
-    }
-    remove(key) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return this.storage.remove(key);
-        });
-    }
-};
-ConfigurationService = __decorate([
-    Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* Injectable */])(), 
-    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_1__ionic_storage__["a" /* Storage */]])
-], ConfigurationService);
-//# sourceMappingURL=configuration-service.js.map
-
-/***/ }),
-
-/***/ 72:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return OperatorService; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__ = __webpack_require__(222);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(37);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__sql_service__ = __webpack_require__(59);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__config__ = __webpack_require__(51);
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments)).next());
-    });
-};
-
-
-
-
-
-let OperatorService = class OperatorService {
-    constructor(http, configuration, storage) {
-        this.in_progress = false;
-        console.log('[OperatorService] - constructor() :: ');
-        this.http = http;
-        this.configuration = configuration;
-        this.storage = storage;
-    }
-    init() {
-        console.log('[OperatorService] - init() :: Preparing database table');
-        return this.storage.executeSql('CREATE TABLE IF NOT EXISTS operators (operator_id INTEGER PRIMARY KEY, first_name TEXT, last_name TEXT, pin_no TEXT)');
-    }
-    load() {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log('[OperatorService] - load() :: Loading operators from the API');
-            if (this.in_progress) {
-                console.log('[OperatorService] - load() :: Loading is already in progress, exit.');
-                return null;
-            }
-            this.in_progress = true;
-            let result = yield this.http
-                .get(`${this.configuration.API_ENDPOINT}/operators-dep/${this.configuration.DEPARTMENT_ID}`)
-                .toPromise();
-            console.log('[OperatorService] - load() :: Operators loaded from the API');
-            console.log('[OperatorService] - load() :: Deleting operators from the cache');
-            yield this.deleteAll();
-            console.log('[OperatorService] - load() :: Operators deleted from the cache');
-            console.log('[OperatorService] - load() :: Creating operators in the cache.');
-            let promises = result.json().Operators.map((item) => __awaiter(this, void 0, void 0, function* () {
-                yield this.create(item);
-            }));
-            console.info('[OperatorService] - load() :: Operators loaded from the API and cached.');
-            this.in_progress = false;
-            return Promise.all(promises);
-        });
-    }
-    find(id) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let query = 'SELECT operator_id, first_name, last_name, pin_no FROM operators WHERE operator_id = (?)';
-            return this.storage.executeSql(query, [id]);
-        });
-    }
-    findByPinCode(pin_no) {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log(`[OperatorService] - findByPinCode() :: Attempt to find operator with the PIN ${pin_no}`);
-            let query = 'SELECT operator_id, first_name, last_name, pin_no FROM operators WHERE pin_no = (?)';
-            return this.storage.executeSql(query, [pin_no]);
-        });
-    }
-    deleteAll() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return Promise.all([
-                this.storage.executeSql('DELETE FROM operators'),
-                this.storage.executeSql('DELETE FROM SQLITE_SEQUENCE WHERE name="operators"')
-            ]);
-        });
-    }
-    create(operator) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let query = 'INSERT INTO operators (operator_id, first_name, last_name, pin_no) VALUES (?, ?, ?, ?)';
-            return this.storage.executeSql(query, [operator.operator_id, operator.first_name, operator.last_name, operator.pin_no]);
-        });
-    }
-};
-OperatorService = __decorate([
-    Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["I" /* Injectable */])(), 
-    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_2__angular_http__["a" /* Http */], __WEBPACK_IMPORTED_MODULE_4__config__["a" /* Config */], __WEBPACK_IMPORTED_MODULE_3__sql_service__["a" /* SqlService */]])
-], OperatorService);
-//# sourceMappingURL=operator-service.js.map
-
 /***/ })
 
-},[495]);
+},[496]);
 //# sourceMappingURL=main.js.map
