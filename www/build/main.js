@@ -1405,7 +1405,7 @@ let CreateTransactionPage = class CreateTransactionPage {
         this.configurationService.get('operator').then(operator => {
             console.log('[CreateTransactionPage] - constructor() :: operator:', operator);
             this.operator = operator;
-            this.transactionForm.patchValue({ driver_name: `${this.operator.name}` });
+            this.transactionForm.patchValue({ driver_name: `${this.operator.first_name}` });
         });
         this.configurationService.get('plant').then(plant_id => {
             console.log('[CreateTransactionPage] - constructor() :: plant_id:', plant_id);
