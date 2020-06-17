@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="nz.co.ravensdown.aeroworks" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:gap="http://phonegap.com/ns/1.0">
-    <name>FlowInfo AW</name>
+<widget id="com.flowinfo.aeroworks" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:gap="http://phonegap.com/ns/1.0">
+    <name>Fuel A1</name>
     <description>Fuel-IT App for AeroWorks</description>
     <author email="developers@boysfromthefactory.co.nz" href="https://fuel-it.co.nz/">FuelIT</author>
     <content src="index.html" />
