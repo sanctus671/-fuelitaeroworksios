@@ -238,46 +238,72 @@ let TransactionService = class TransactionService {
     }
     createRefill(transaction) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log('[TransactionService] - create() :: Creating Refill in the cache:', transaction);
-            let insert_query = `INSERT INTO refills (operator_id, from_trailer_id, to_trailer_id, amount) VALUES (?, ?, ?, ?)`;
-            alert("Saving locally");
-            let result = yield this.storage.executeSql(insert_query, [
-                transaction.operator_id,
-                transaction.from_trailer_id,
-                transaction.to_trailer_id,
-                transaction.amount,
-            ]);
+            let api_result = yield this.http
+                .post(this.configuration.API_ENDPOINT + '/tank-refill/', transaction)
+                .toPromise();
+            return api_result;
+            /* 		alert("Saving locally");
+                    
+                    
+                    console.log('[TransactionService] - create() :: Creating Refill in the cache:', transaction);
+                    let insert_query = `INSERT INTO refills (operator_id, from_trailer_id, to_trailer_id, amount) VALUES (?, ?, ?, ?)`;
+                    
+                    
+                    
+                    let result = await this.storage.executeSql(
+                      insert_query,
+                      [
+                        transaction.operator_id,
+                        transaction.from_trailer_id,
+                        transaction.to_trailer_id,
+                        transaction.amount,
+                      ]
+                    );
+                    
             alert(JSON.stringify(result));
+                    
             alert("Transaction created in the cache");
+            
+            
             alert(result.res.insertId);
-            console.log('[TransactionService] - create() :: Transaction created in the cache:', result.res.insertId);
-            try {
-                console.log('[TransactionService] - create() :: Creating TransactionService in the API:', result);
-                alert("Creating in API");
-                transaction.transaction_id = result.res.insertId;
-                let api_result = yield this.http
-                    .post(this.configuration.API_ENDPOINT + '/tank-refill/', transaction)
-                    .toPromise();
-                console.log('[TransactionService] - create() :: Transaction created in the API:', api_result);
-                alert("Transaction created in the API");
-                console.log('[TransactionService] - create() :: Updating Transaction in the cache as synced:', api_result);
-                let update_query = `UPDATE refills SET synced_at = (?) WHERE transaction_id = (?)`;
-                let datePipe = new __WEBPACK_IMPORTED_MODULE_3__angular_common__["c" /* DatePipe */](this.configuration.LOCALE);
-                result = yield this.storage.executeSql(update_query, [
-                    datePipe.transform(Date.now(), 'y-MM-dd HH:mm:ss'),
-                    transaction.dipreading_id
-                ]);
-                alert("Transaction updated in the cache as synced");
-                console.log('[TransactionService] - create() :: Transaction updated in the cache as synced:', result);
-                console.info('[TransactionService] - create() :: Transaction uploaded and marked as synced');
-            }
-            catch (exception) {
-                alert("failed in API");
-                alert(JSON.stringify(exception));
-                alert(JSON.stringify(transaction));
-                console.warn('[TransactionService] - create() :: Failed to create Transaction in the API:', transaction, exception);
-            }
-            return result;
+            
+                    console.log('[TransactionService] - create() :: Transaction created in the cache:', result.res.insertId);
+            
+                    try {
+                      console.log('[TransactionService] - create() :: Creating TransactionService in the API:', result);
+                      alert("Creating in API");
+                      transaction.transaction_id = result.res.insertId;
+                      let api_result = await this.http
+                        .post(this.configuration.API_ENDPOINT + '/tank-refill/', transaction)
+                        .toPromise();
+            
+                        console.log('[TransactionService] - create() :: Transaction created in the API:', api_result);
+            alert("Transaction created in the API");
+                        console.log('[TransactionService] - create() :: Updating Transaction in the cache as synced:', api_result);
+                        let update_query  = `UPDATE refills SET synced_at = (?) WHERE transaction_id = (?)`;
+                        let datePipe      = new DatePipe(this.configuration.LOCALE);
+                        result            = await this.storage.executeSql(
+                                                update_query,
+                                                [
+                                                datePipe.transform(Date.now(), 'y-MM-dd HH:mm:ss'),
+                                                transaction.dipreading_id
+                                                ]
+                        );
+                        alert("Transaction updated in the cache as synced");
+                        
+                        console.log('[TransactionService] - create() :: Transaction updated in the cache as synced:', result);
+                        console.info('[TransactionService] - create() :: Transaction uploaded and marked as synced');
+                        
+            
+                    }
+                    catch (exception) {
+                        alert("failed in API");
+                        alert(JSON.stringify(exception));
+                        alert(JSON.stringify(transaction));
+                        
+                      console.warn('[TransactionService] - create() :: Failed to create Transaction in the API:', transaction, exception);
+                    }
+                    return result; */
         });
     }
     upload() {
@@ -1919,7 +1945,7 @@ let CreateTankToTankPage = class CreateTankToTankPage {
             operator_id: this.operator.operator_id,
             amount: data.amount
         };
-        this.transactionService.createRefill(refill).then(result => {
+        this.transactionService.createRefill(refill).then((result) => {
             let toast = this.toastController.create({
                 message: 'Transaction saved!',
                 duration: 2000
@@ -1928,20 +1954,16 @@ let CreateTankToTankPage = class CreateTankToTankPage {
             this.tankToTankForm.patchValue({ from_trailer_id: null });
             this.tankToTankForm.patchValue({ to_trailer_id: null });
             this.tankToTankForm.patchValue({ amount: null });
-        }, failure => {
-            alert("in failure");
-            alert(failure);
-            alert(JSON.stringify(failure));
+        }).catch((e) => {
+            alert("in catch");
+            alert(e);
+            alert(JSON.stringify(e));
             let toast = this.toastController.create({
                 message: 'Error saving transaction!',
                 duration: 2000,
                 cssClass: 'toast-error'
             });
             toast.present();
-        }).catch((e) => {
-            alert("in catch");
-            alert(e);
-            alert(JSON.stringify(e));
         });
     }
 };
