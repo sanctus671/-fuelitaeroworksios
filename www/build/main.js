@@ -254,6 +254,7 @@ let TransactionService = class TransactionService {
                     .post(this.configuration.API_ENDPOINT + '/tank-refill/', transaction)
                     .toPromise();
                 console.log('[TransactionService] - create() :: Transaction created in the API:', api_result);
+                alert("Transaction created in the API");
                 console.log('[TransactionService] - create() :: Updating Transaction in the cache as synced:', api_result);
                 let update_query = `UPDATE refills SET synced_at = (?) WHERE transaction_id = (?)`;
                 let datePipe = new __WEBPACK_IMPORTED_MODULE_3__angular_common__["c" /* DatePipe */](this.configuration.LOCALE);
@@ -261,10 +262,14 @@ let TransactionService = class TransactionService {
                     datePipe.transform(Date.now(), 'y-MM-dd HH:mm:ss'),
                     transaction.dipreading_id
                 ]);
+                alert("Transaction updated in the cache as synced");
                 console.log('[TransactionService] - create() :: Transaction updated in the cache as synced:', result);
                 console.info('[TransactionService] - create() :: Transaction uploaded and marked as synced');
             }
             catch (exception) {
+                alert("failed in API");
+                alert(JSON.stringify(exception));
+                alert(JSON.stringify(transaction));
                 console.warn('[TransactionService] - create() :: Failed to create Transaction in the API:', transaction, exception);
             }
             return result;
