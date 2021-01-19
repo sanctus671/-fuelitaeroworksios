@@ -240,15 +240,24 @@ let TransactionService = class TransactionService {
         return __awaiter(this, void 0, void 0, function* () {
             console.log('[TransactionService] - create() :: Creating Refill in the cache:', transaction);
             let insert_query = 'INSERT INTO refills (operator_id, from_trailer_id, to_trailer_id, amount) VALUES (?, ?, ?, ?)';
+            alert("Saving locally");
             let result = yield this.storage.executeSql(insert_query, [
                 transaction.operator_id,
                 transaction.from_trailer_id,
                 transaction.to_trailer_id,
                 transaction.amount,
             ]);
+            alert(JSON.stringify([
+                transaction.operator_id,
+                transaction.from_trailer_id,
+                transaction.to_trailer_id,
+                transaction.amount,
+            ]));
+            alert("Transaction created in the cache");
             console.log('[TransactionService] - create() :: Transaction created in the cache:', result.res.insertId);
             try {
                 console.log('[TransactionService] - create() :: Creating TransactionService in the API:', result);
+                alert("Creating in API");
                 transaction.transaction_id = result.res.insertId;
                 let api_result = yield this.http
                     .post(this.configuration.API_ENDPOINT + '/tank-refill/', transaction)
