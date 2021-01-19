@@ -239,7 +239,7 @@ let TransactionService = class TransactionService {
     createRefill(transaction) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log('[TransactionService] - create() :: Creating Refill in the cache:', transaction);
-            let insert_query = 'INSERT INTO refills (operator_id, from_trailer_id, to_trailer_id, amount) VALUES (?, ?, ?, ?)';
+            let insert_query = `INSERT INTO refills (operator_id, from_trailer_id, to_trailer_id, amount) VALUES (?, ?, ?, ?)`;
             alert("Saving locally");
             let result = yield this.storage.executeSql(insert_query, [
                 transaction.operator_id,
@@ -247,13 +247,9 @@ let TransactionService = class TransactionService {
                 transaction.to_trailer_id,
                 transaction.amount,
             ]);
-            alert(JSON.stringify([
-                transaction.operator_id,
-                transaction.from_trailer_id,
-                transaction.to_trailer_id,
-                transaction.amount,
-            ]));
+            alert(JSON.stringify(result));
             alert("Transaction created in the cache");
+            alert(result.res.insertId);
             console.log('[TransactionService] - create() :: Transaction created in the cache:', result.res.insertId);
             try {
                 console.log('[TransactionService] - create() :: Creating TransactionService in the API:', result);
@@ -1933,6 +1929,7 @@ let CreateTankToTankPage = class CreateTankToTankPage {
             this.tankToTankForm.patchValue({ to_trailer_id: null });
             this.tankToTankForm.patchValue({ amount: null });
         }, failure => {
+            alert("in failure");
             alert(failure);
             alert(JSON.stringify(failure));
             let toast = this.toastController.create({
@@ -1941,6 +1938,10 @@ let CreateTankToTankPage = class CreateTankToTankPage {
                 cssClass: 'toast-error'
             });
             toast.present();
+        }).catch((e) => {
+            alert("in catch");
+            alert(e);
+            alert(JSON.stringify(e));
         });
     }
 };
