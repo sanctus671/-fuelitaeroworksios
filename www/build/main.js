@@ -1920,7 +1920,7 @@ let CreateTankToTankPage = class CreateTankToTankPage {
             this.tankToTankForm.patchValue({ amount: null });
         }, failure => {
             alert(failure);
-            alert(JSON.parse(failure));
+            alert(JSON.stringify(failure));
             let toast = this.toastController.create({
                 message: 'Error saving transaction!',
                 duration: 2000,
