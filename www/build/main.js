@@ -1,117 +1,6 @@
 webpackJsonp([0],{
 
-/***/ 131:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return PlantService; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__ = __webpack_require__(224);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(37);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ionic_angular__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__config__ = __webpack_require__(51);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__sql_service__ = __webpack_require__(60);
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments)).next());
-    });
-};
-
-
-
-
-
-
-let PlantService = class PlantService {
-    constructor(http, configuration, storage, events) {
-        this.in_progress = false;
-        console.log('[PlantService] - constructor() :: ');
-        this.http = http;
-        this.configuration = configuration;
-        this.storage = storage;
-        this.events = events;
-    }
-    init() {
-        console.log('[PlantService] - init() :: Preparing database table');
-        return this.storage.executeSql('CREATE TABLE IF NOT EXISTS plants (id INTEGER PRIMARY KEY, plant_id INTEGER, plant_no INTEGER, tail_no TEXT)');
-    }
-    load() {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log('[PlantService] - load() :: Loading plants from the API');
-            if (this.in_progress) {
-                console.log('[PlantService] - load() :: Loading is already in progress, exit.');
-                return null;
-            }
-            this.in_progress = true;
-            let result = yield this.http
-                .get(`${this.configuration.API_ENDPOINT}/plants-dep/${this.configuration.DEPARTMENT_ID}`)
-                .toPromise();
-            console.log('[PlantService] - load() :: Plants loaded from the API.');
-            console.log('[PlantService] - load() :: Deleting plants from the cache.');
-            yield this.deleteAll();
-            console.log('[PlantService] - load() :: Plants deleted from the cache.');
-            console.log('[PlantService] - load() :: Creating plants in the cache.');
-            let promises = result.json().Plant.map((item) => __awaiter(this, void 0, void 0, function* () {
-                // console.log('[PlantService] - load() :: Creating plant in the cache.', item);
-                yield this.create(item);
-            }));
-            console.info('[PlantService] - load() :: Plants loaded from the API and cached.');
-            this.events.publish('plants:loaded');
-            console.info('[PlantService] - load() :: Event "plants:loaded" published.');
-            this.in_progress = false;
-            return Promise.all(promises);
-        });
-    }
-    findAll() {
-        return __awaiter(this, void 0, void 0, function* () {
-            let query = 'SELECT plant_id, plant_no, tail_no FROM plants';
-            return this.storage.executeSql(query);
-        });
-    }
-    find(id) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let query = 'SELECT plant_id, plant_no, tail_no FROM plants WHERE plant_id = (?)';
-            return this.storage.executeSql(query, [id]);
-        });
-    }
-    deleteAll() {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log('[PlantService] - deleteAll() :: Deleting plants from the cache.');
-            return Promise.all([
-                this.storage.executeSql('DELETE FROM plants'),
-                this.storage.executeSql('DELETE FROM SQLITE_SEQUENCE WHERE name="plants"')
-            ]);
-        });
-    }
-    create(plant) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let query = 'INSERT INTO plants (plant_id, plant_no, tail_no) VALUES (?, ?, ?)';
-            return this.storage.executeSql(query, [plant.plant_id, plant.plant_no, plant.tail_no]);
-        });
-    }
-};
-PlantService = __decorate([
-    Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["I" /* Injectable */])(), 
-    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_2__angular_http__["a" /* Http */], __WEBPACK_IMPORTED_MODULE_4__config__["a" /* Config */], __WEBPACK_IMPORTED_MODULE_5__sql_service__["a" /* SqlService */], __WEBPACK_IMPORTED_MODULE_3_ionic_angular__["b" /* Events */]])
-], PlantService);
-//# sourceMappingURL=plant-service.js.map
-
-/***/ }),
-
-/***/ 132:
+/***/ 133:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -119,7 +8,7 @@ PlantService = __decorate([
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__ = __webpack_require__(72);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(37);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(38);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_common__ = __webpack_require__(66);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__config__ = __webpack_require__(51);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__sql_service__ = __webpack_require__(60);
@@ -397,353 +286,7 @@ TransactionService = __decorate([
 
 /***/ }),
 
-/***/ 133:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return TimesheetService; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__ = __webpack_require__(72);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(37);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_common__ = __webpack_require__(66);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__sql_service__ = __webpack_require__(60);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__config__ = __webpack_require__(51);
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments)).next());
-    });
-};
-
-
-
-
-
-
-let TimesheetService = class TimesheetService {
-    constructor(http, configuration, storage) {
-        console.log('[TimesheetService] - constructor() :: ');
-        this.http = http;
-        this.configuration = configuration;
-        this.storage = storage;
-    }
-    init() {
-        console.log('[TimesheetService] - init() :: Preparing database table');
-        return this.storage.executeSql(`CREATE TABLE IF NOT EXISTS timesheets (
-      timesheet_id INTEGER PRIMARY KEY AUTOINCREMENT,
-      operator_id INTEGER, 
-      plant_id INTEGER, 
-      start_date TEXT,
-      end_date TEXT, 
-      start_hours TEXT, 
-      end_hours TEXT, 
-      synced_at TEXT
-    )`);
-    }
-    create(data) {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log('[TimesheetService] - create() :: Creating timesheet in the cache:', data);
-            let insert_query = 'INSERT INTO timesheets (operator_id, plant_id, start_date, end_date, start_hours, end_hours) VALUES (?, ?, ?, ?, ?, ?)';
-            let result = yield this.storage.executeSql(insert_query, [
-                data.operator_id,
-                data.plant_id,
-                data.start_date,
-                data.end_date,
-                data.start_hours,
-                data.end_hours
-            ]);
-            console.log('[TimesheetService] - create() :: Timesheet created in the cache:', result.res.insertId);
-            try {
-                console.log('[TimesheetService] - create() :: Creating timesheetService in the API:', result);
-                data.timesheet_id = result.res.insertId;
-                let api_result = yield this.http
-                    .post(this.configuration.API_ENDPOINT + '/air-trans/', data)
-                    .toPromise();
-                console.log('[TimesheetService] - create() :: Timesheet created in the API:', api_result);
-                console.log('[TimesheetService] - create() :: Updating timesheet in the cache as synced:', api_result);
-                let update_query = `UPDATE timesheets SET synced_at = (?) WHERE timesheet_id = (?)`;
-                let datePipe = new __WEBPACK_IMPORTED_MODULE_3__angular_common__["c" /* DatePipe */](this.configuration.LOCALE);
-                result = yield this.storage.executeSql(update_query, [
-                    datePipe.transform(Date.now(), 'y-MM-dd HH:mm:ss'),
-                    data.timesheet_id
-                ]);
-                console.log('[TimesheetService] - create() :: Timesheet updated in the cache as synced:', result);
-                console.info('[TimesheetService] - create() :: Timesheet uploaded and marked as synced');
-            }
-            catch (exception) {
-                console.warn('[TimesheetService] - create() :: Failed to create timesheet in the API:', data, exception);
-            }
-            return result;
-        });
-    }
-    upload() {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log('[TimesheetService] - upload() :: Finding non-synced timesheets');
-            let select_query = 'SELECT timesheet_id, operator_id, plant_id, start_date, end_date, start_hours, end_hours, synced_at FROM timesheets WHERE synced_at IS NULL';
-            let timesheets = yield this.storage.executeSql(select_query);
-            console.log('[TimesheetService] - upload() :: Found non-synced timesheets:', timesheets.res.rows.length);
-            let promises = Array.from(timesheets.res.rows).map((timesheet) => __awaiter(this, void 0, void 0, function* () {
-                console.log('[TimesheetService] - upload() :: Updating non-synced timesheet', timesheet);
-                yield this.http
-                    .post(this.configuration.API_ENDPOINT + '/air-trans/', timesheet)
-                    .toPromise();
-                let update_query = 'UPDATE timesheets SET synced_at = (?) WHERE timesheet_id = (?)';
-                let datePipe = new __WEBPACK_IMPORTED_MODULE_3__angular_common__["c" /* DatePipe */](this.configuration.LOCALE);
-                return yield this.storage.executeSql(update_query, [datePipe.transform(Date.now(), 'y-MM-dd HH:mm:ss'), timesheet.timesheet_id]);
-            }));
-            return Promise.all(promises);
-        });
-    }
-};
-TimesheetService = __decorate([
-    Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["I" /* Injectable */])(), 
-    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_2__angular_http__["a" /* Http */], __WEBPACK_IMPORTED_MODULE_5__config__["a" /* Config */], __WEBPACK_IMPORTED_MODULE_4__sql_service__["a" /* SqlService */]])
-], TimesheetService);
-//# sourceMappingURL=timesheet-service.js.map
-
-/***/ }),
-
 /***/ 134:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-class BluetoothMessage {
-}
-/* unused harmony export BluetoothMessage */
-
-BluetoothMessage.ESCAPE = String.fromCharCode(0x0A);
-BluetoothMessage.FRAME_BOUNDARY = String.fromCharCode(0x1C);
-class BluetoothUUID {
-}
-/* harmony export (immutable) */ __webpack_exports__["d"] = BluetoothUUID;
-
-BluetoothUUID.SERVICE = "569A1101-B87F-490C-92CB-11BA5EA5167C";
-BluetoothUUID.READ = "569A2000-B87F-490C-92CB-11BA5EA5167C";
-BluetoothUUID.WRITE = "569A2001-B87F-490C-92CB-11BA5EA5167C";
-class BluetoothTransactionRequest {
-    toString() {
-        return `${BluetoothMessage.FRAME_BOUNDARY}{"type":"transactionRequest"}${BluetoothMessage.FRAME_BOUNDARY}`;
-    }
-    toArrayBuffer() {
-        let sendString = this.toString();
-        var array = new Uint8Array(sendString.length);
-        for (var i = 0, l = sendString.length; i < l; i++) {
-            array[i] = sendString.charCodeAt(i);
-        }
-        return array.buffer;
-    }
-    toChunkedArrayBuffer() {
-        let sendString = this.toString();
-        let chunks = sendString.match(/.{1,10}/g);
-        let chunkedBuffer = [];
-        for (let chunk of chunks) {
-            var array = new Uint8Array(chunk.length);
-            for (var i = 0, l = chunk.length; i < l; i++) {
-                array[i] = chunk.charCodeAt(i);
-            }
-            chunkedBuffer.push(array.buffer);
-        }
-        return chunkedBuffer;
-    }
-}
-/* harmony export (immutable) */ __webpack_exports__["c"] = BluetoothTransactionRequest;
-
-class BluetoothAcknowledgement {
-    toString() {
-        return `${BluetoothMessage.FRAME_BOUNDARY}{"type":"OK"}${BluetoothMessage.FRAME_BOUNDARY}`;
-    }
-    toArrayBuffer() {
-        let sendString = this.toString();
-        var array = new Uint8Array(sendString.length);
-        for (var i = 0, l = sendString.length; i < l; i++) {
-            array[i] = sendString.charCodeAt(i);
-        }
-        return array.buffer;
-    }
-    toChunkedArrayBuffer() {
-        let sendString = this.toString();
-        let chunks = sendString.match(/.{1,10}/g);
-        let chunkedBuffer = [];
-        for (let chunk of chunks) {
-            var array = new Uint8Array(chunk.length);
-            for (var i = 0, l = chunk.length; i < l; i++) {
-                array[i] = chunk.charCodeAt(i);
-            }
-            chunkedBuffer.push(array.buffer);
-        }
-        return chunkedBuffer;
-    }
-}
-/* harmony export (immutable) */ __webpack_exports__["a"] = BluetoothAcknowledgement;
-
-class BluetoothResponse {
-    constructor(rawBuffer, isString) {
-        this.data = null;
-        this.type = null;
-        //convert raw from array buffer to string as per BLE central plugin https://github.com/don/cordova-plugin-ble-central#typed-arrays
-        let raw = "";
-        if (!isString) {
-            raw = this.bytesToString(rawBuffer);
-        }
-        else {
-            raw = rawBuffer;
-        }
-        console.debug(`[BluetoothResponse] - constructor() :: "${raw}"`);
-        if (raw != `${BluetoothMessage.FRAME_BOUNDARY}` && raw != `${BluetoothMessage.ESCAPE + BluetoothMessage.FRAME_BOUNDARY}` && raw != '') {
-            try {
-                raw = raw.replace(/\x1C/g, '').replace(/\x0A/g, '');
-                let packet = JSON.parse(String(raw.slice(0, raw.length)));
-                this.data = packet.data;
-                this.type = packet.type;
-            }
-            catch (error) {
-                console.error('[BluetoothResponse] - constructor() ::', error);
-                throw error;
-            }
-        }
-    }
-    bytesToString(buffer) {
-        return String.fromCharCode.apply(null, new Uint8Array(buffer));
-    }
-    getData() {
-        return this.data;
-    }
-    isBoundaryOnly() {
-        return this.data == null;
-    }
-    isEmpty() {
-        return Object.keys(this.data).length == 0;
-    }
-}
-/* harmony export (immutable) */ __webpack_exports__["b"] = BluetoothResponse;
-
-//# sourceMappingURL=bluetooth-message.js.map
-
-/***/ }),
-
-/***/ 135:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return TankService; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__ = __webpack_require__(224);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(37);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ionic_angular__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__config__ = __webpack_require__(51);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__sql_service__ = __webpack_require__(60);
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments)).next());
-    });
-};
-
-
-
-
-
-
-let TankService = class TankService {
-    constructor(http, configuration, storage, events) {
-        this.in_progress = false;
-        console.log('[TankService] - constructor() :: ');
-        this.http = http;
-        this.configuration = configuration;
-        this.storage = storage;
-        this.events = events;
-    }
-    init() {
-        console.log('[TankService] - init() :: Preparing database table');
-        return this.storage.executeSql('CREATE TABLE IF NOT EXISTS tanks (id INTEGER PRIMARY KEY, trailer_id INTEGER, trailer_no INTEGER, trailer_name TEXT)');
-    }
-    load() {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log('[TankService] - load() :: Loading tanks from the API');
-            if (this.in_progress) {
-                console.log('[TankService] - load() :: Loading is already in progress, exit.');
-                return null;
-            }
-            this.in_progress = true;
-            let result = yield this.http
-                .get(`${this.configuration.API_ENDPOINT}/tanks-dep/${this.configuration.DEPARTMENT_ID}`)
-                .toPromise();
-            console.log('[TankService] - load() :: Tanks loaded from the API.');
-            console.log('[TankService] - load() :: Deleting tanks from the cache.');
-            yield this.deleteAll();
-            console.log('[TankService] - load() :: Tanks deleted from the cache.');
-            console.log('[TankService] - load() :: Creating tanks in the cache.');
-            let promises = result.json().Tank.map((item) => __awaiter(this, void 0, void 0, function* () {
-                yield this.create(item);
-            }));
-            console.info('[TankService] - load() :: Tanks loaded from the API and cached.');
-            this.events.publish('tanks:loaded');
-            console.info('[TankService] - load() :: Event "tanks:loaded" published.');
-            this.in_progress = false;
-            return Promise.all(promises);
-        });
-    }
-    findAll() {
-        return __awaiter(this, void 0, void 0, function* () {
-            let query = 'SELECT trailer_id, trailer_no, trailer_name FROM tanks';
-            return this.storage.executeSql(query);
-        });
-    }
-    find(id) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let query = 'SELECT trailer_id, trailer_no, trailer_name FROM tanks WHERE trailer_id = (?)';
-            return this.storage.executeSql(query, [id]);
-        });
-    }
-    deleteAll() {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log('[TankService] - deleteAll() :: Deleting tanks from the cache.');
-            return Promise.all([
-                this.storage.executeSql('DELETE FROM tanks'),
-                this.storage.executeSql('DELETE FROM SQLITE_SEQUENCE WHERE name="tanks"')
-            ]);
-        });
-    }
-    create(tank) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let query = 'INSERT INTO tanks (trailer_id, trailer_no, trailer_name) VALUES (?, ?, ?)';
-            return this.storage.executeSql(query, [tank.trailer_id, tank.trailer_no, tank.trailer_name]);
-        });
-    }
-};
-TankService = __decorate([
-    Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["I" /* Injectable */])(), 
-    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_2__angular_http__["a" /* Http */], __WEBPACK_IMPORTED_MODULE_4__config__["a" /* Config */], __WEBPACK_IMPORTED_MODULE_5__sql_service__["a" /* SqlService */], __WEBPACK_IMPORTED_MODULE_3_ionic_angular__["b" /* Events */]])
-], TankService);
-//# sourceMappingURL=tank-service.js.map
-
-/***/ }),
-
-/***/ 225:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -752,8 +295,8 @@ TankService = __decorate([
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map__ = __webpack_require__(72);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__ = __webpack_require__(134);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__ionic_storage__ = __webpack_require__(186);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__models_bluetooth_message__ = __webpack_require__(135);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__ionic_storage__ = __webpack_require__(187);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1119,6 +662,234 @@ BluetoothService = __decorate([
 
 /***/ }),
 
+/***/ 135:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+class BluetoothMessage {
+}
+/* unused harmony export BluetoothMessage */
+
+BluetoothMessage.ESCAPE = String.fromCharCode(0x0A);
+BluetoothMessage.FRAME_BOUNDARY = String.fromCharCode(0x1C);
+class BluetoothUUID {
+}
+/* harmony export (immutable) */ __webpack_exports__["d"] = BluetoothUUID;
+
+BluetoothUUID.SERVICE = "569A1101-B87F-490C-92CB-11BA5EA5167C";
+BluetoothUUID.READ = "569A2000-B87F-490C-92CB-11BA5EA5167C";
+BluetoothUUID.WRITE = "569A2001-B87F-490C-92CB-11BA5EA5167C";
+class BluetoothTransactionRequest {
+    toString() {
+        return `${BluetoothMessage.FRAME_BOUNDARY}{"type":"transactionRequest"}${BluetoothMessage.FRAME_BOUNDARY}`;
+    }
+    toArrayBuffer() {
+        let sendString = this.toString();
+        var array = new Uint8Array(sendString.length);
+        for (var i = 0, l = sendString.length; i < l; i++) {
+            array[i] = sendString.charCodeAt(i);
+        }
+        return array.buffer;
+    }
+    toChunkedArrayBuffer() {
+        let sendString = this.toString();
+        let chunks = sendString.match(/.{1,10}/g);
+        let chunkedBuffer = [];
+        for (let chunk of chunks) {
+            var array = new Uint8Array(chunk.length);
+            for (var i = 0, l = chunk.length; i < l; i++) {
+                array[i] = chunk.charCodeAt(i);
+            }
+            chunkedBuffer.push(array.buffer);
+        }
+        return chunkedBuffer;
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["c"] = BluetoothTransactionRequest;
+
+class BluetoothAcknowledgement {
+    toString() {
+        return `${BluetoothMessage.FRAME_BOUNDARY}{"type":"OK"}${BluetoothMessage.FRAME_BOUNDARY}`;
+    }
+    toArrayBuffer() {
+        let sendString = this.toString();
+        var array = new Uint8Array(sendString.length);
+        for (var i = 0, l = sendString.length; i < l; i++) {
+            array[i] = sendString.charCodeAt(i);
+        }
+        return array.buffer;
+    }
+    toChunkedArrayBuffer() {
+        let sendString = this.toString();
+        let chunks = sendString.match(/.{1,10}/g);
+        let chunkedBuffer = [];
+        for (let chunk of chunks) {
+            var array = new Uint8Array(chunk.length);
+            for (var i = 0, l = chunk.length; i < l; i++) {
+                array[i] = chunk.charCodeAt(i);
+            }
+            chunkedBuffer.push(array.buffer);
+        }
+        return chunkedBuffer;
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = BluetoothAcknowledgement;
+
+class BluetoothResponse {
+    constructor(rawBuffer, isString) {
+        this.data = null;
+        this.type = null;
+        //convert raw from array buffer to string as per BLE central plugin https://github.com/don/cordova-plugin-ble-central#typed-arrays
+        let raw = "";
+        if (!isString) {
+            raw = this.bytesToString(rawBuffer);
+        }
+        else {
+            raw = rawBuffer;
+        }
+        console.debug(`[BluetoothResponse] - constructor() :: "${raw}"`);
+        if (raw != `${BluetoothMessage.FRAME_BOUNDARY}` && raw != `${BluetoothMessage.ESCAPE + BluetoothMessage.FRAME_BOUNDARY}` && raw != '') {
+            try {
+                raw = raw.replace(/\x1C/g, '').replace(/\x0A/g, '');
+                let packet = JSON.parse(String(raw.slice(0, raw.length)));
+                this.data = packet.data;
+                this.type = packet.type;
+            }
+            catch (error) {
+                console.error('[BluetoothResponse] - constructor() ::', error);
+                throw error;
+            }
+        }
+    }
+    bytesToString(buffer) {
+        return String.fromCharCode.apply(null, new Uint8Array(buffer));
+    }
+    getData() {
+        return this.data;
+    }
+    isBoundaryOnly() {
+        return this.data == null;
+    }
+    isEmpty() {
+        return Object.keys(this.data).length == 0;
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["b"] = BluetoothResponse;
+
+//# sourceMappingURL=bluetooth-message.js.map
+
+/***/ }),
+
+/***/ 136:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return TankService; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__ = __webpack_require__(225);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(38);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ionic_angular__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__config__ = __webpack_require__(51);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__sql_service__ = __webpack_require__(60);
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments)).next());
+    });
+};
+
+
+
+
+
+
+let TankService = class TankService {
+    constructor(http, configuration, storage, events) {
+        this.in_progress = false;
+        console.log('[TankService] - constructor() :: ');
+        this.http = http;
+        this.configuration = configuration;
+        this.storage = storage;
+        this.events = events;
+    }
+    init() {
+        console.log('[TankService] - init() :: Preparing database table');
+        return this.storage.executeSql('CREATE TABLE IF NOT EXISTS tanks (id INTEGER PRIMARY KEY, trailer_id INTEGER, trailer_no INTEGER, trailer_name TEXT)');
+    }
+    load() {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('[TankService] - load() :: Loading tanks from the API');
+            if (this.in_progress) {
+                console.log('[TankService] - load() :: Loading is already in progress, exit.');
+                return null;
+            }
+            this.in_progress = true;
+            let result = yield this.http
+                .get(`${this.configuration.API_ENDPOINT}/tanks-dep/${this.configuration.DEPARTMENT_ID}`)
+                .toPromise();
+            console.log('[TankService] - load() :: Tanks loaded from the API.');
+            console.log('[TankService] - load() :: Deleting tanks from the cache.');
+            yield this.deleteAll();
+            console.log('[TankService] - load() :: Tanks deleted from the cache.');
+            console.log('[TankService] - load() :: Creating tanks in the cache.');
+            let promises = result.json().Tank.map((item) => __awaiter(this, void 0, void 0, function* () {
+                yield this.create(item);
+            }));
+            console.info('[TankService] - load() :: Tanks loaded from the API and cached.');
+            this.events.publish('tanks:loaded');
+            console.info('[TankService] - load() :: Event "tanks:loaded" published.');
+            this.in_progress = false;
+            return Promise.all(promises);
+        });
+    }
+    findAll() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let query = 'SELECT trailer_id, trailer_no, trailer_name FROM tanks';
+            return this.storage.executeSql(query);
+        });
+    }
+    find(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let query = 'SELECT trailer_id, trailer_no, trailer_name FROM tanks WHERE trailer_id = (?)';
+            return this.storage.executeSql(query, [id]);
+        });
+    }
+    deleteAll() {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('[TankService] - deleteAll() :: Deleting tanks from the cache.');
+            return Promise.all([
+                this.storage.executeSql('DELETE FROM tanks'),
+                this.storage.executeSql('DELETE FROM SQLITE_SEQUENCE WHERE name="tanks"')
+            ]);
+        });
+    }
+    create(tank) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let query = 'INSERT INTO tanks (trailer_id, trailer_no, trailer_name) VALUES (?, ?, ?)';
+            return this.storage.executeSql(query, [tank.trailer_id, tank.trailer_no, tank.trailer_name]);
+        });
+    }
+};
+TankService = __decorate([
+    Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["I" /* Injectable */])(), 
+    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_2__angular_http__["a" /* Http */], __WEBPACK_IMPORTED_MODULE_4__config__["a" /* Config */], __WEBPACK_IMPORTED_MODULE_5__sql_service__["a" /* SqlService */], __WEBPACK_IMPORTED_MODULE_3_ionic_angular__["b" /* Events */]])
+], TankService);
+//# sourceMappingURL=tank-service.js.map
+
+/***/ }),
+
 /***/ 226:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -1127,7 +898,7 @@ BluetoothService = __decorate([
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__ = __webpack_require__(72);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(37);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(38);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_common__ = __webpack_require__(66);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__sql_service__ = __webpack_require__(60);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__config__ = __webpack_require__(51);
@@ -1385,12 +1156,12 @@ TabsPage = __decorate([
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(10);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__providers_configuration_service__ = __webpack_require__(59);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__providers_plant_service__ = __webpack_require__(131);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_transaction_service__ = __webpack_require__(132);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__providers_plant_service__ = __webpack_require__(93);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_transaction_service__ = __webpack_require__(133);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__providers_operator_service__ = __webpack_require__(61);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__providers_timesheet_service__ = __webpack_require__(133);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__providers_bluetooth_service__ = __webpack_require__(225);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_ionic_native__ = __webpack_require__(41);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__providers_timesheet_service__ = __webpack_require__(94);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__providers_bluetooth_service__ = __webpack_require__(134);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_ionic_native__ = __webpack_require__(36);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1642,9 +1413,9 @@ CreateTransactionPage = __decorate([
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(10);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__providers_plant_service__ = __webpack_require__(131);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__providers_plant_service__ = __webpack_require__(93);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__providers_operator_service__ = __webpack_require__(61);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_timesheet_service__ = __webpack_require__(133);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_timesheet_service__ = __webpack_require__(94);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__providers_configuration_service__ = __webpack_require__(59);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -1763,7 +1534,7 @@ CreateTimesheetPage = __decorate([
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(10);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__providers_tank_service__ = __webpack_require__(135);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__providers_tank_service__ = __webpack_require__(136);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__providers_operator_service__ = __webpack_require__(61);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_dipreading_service__ = __webpack_require__(226);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__providers_configuration_service__ = __webpack_require__(59);
@@ -1871,10 +1642,14 @@ CreateDipReadingPage = __decorate([
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(10);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_angular__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__providers_tank_service__ = __webpack_require__(135);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__providers_tank_service__ = __webpack_require__(136);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__providers_operator_service__ = __webpack_require__(61);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_transaction_service__ = __webpack_require__(132);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_transaction_service__ = __webpack_require__(133);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__providers_configuration_service__ = __webpack_require__(59);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__providers_plant_service__ = __webpack_require__(93);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__providers_timesheet_service__ = __webpack_require__(94);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__providers_bluetooth_service__ = __webpack_require__(134);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_ionic_native__ = __webpack_require__(36);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1894,19 +1669,29 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 
 
 
+
+
+
+
+
+
 let CreateTankToTankPage = class CreateTankToTankPage {
-    constructor(events, builder, toastController, tankService, operatorService, transactionService, configurationService) {
-        this.events = events;
+    constructor(builder, loadingController, toastController, configurationService, plantService, tankService, transactionService, operatorService, timesheetService, bluetoothService, events, zone) {
         this.builder = builder;
+        this.loadingController = loadingController;
         this.toastController = toastController;
-        this.tankService = tankService;
-        this.operatorService = operatorService;
-        this.transactionService = transactionService;
         this.configurationService = configurationService;
+        this.plantService = plantService;
+        this.tankService = tankService;
+        this.transactionService = transactionService;
+        this.operatorService = operatorService;
+        this.timesheetService = timesheetService;
+        this.bluetoothService = bluetoothService;
+        this.events = events;
+        this.zone = zone;
         this.tankToTankForm = builder.group({
             'from_trailer_id': new __WEBPACK_IMPORTED_MODULE_1__angular_forms__["b" /* FormControl */]('', __WEBPACK_IMPORTED_MODULE_1__angular_forms__["g" /* Validators */].required),
-            'to_trailer_id': new __WEBPACK_IMPORTED_MODULE_1__angular_forms__["b" /* FormControl */]('', __WEBPACK_IMPORTED_MODULE_1__angular_forms__["g" /* Validators */].required),
-            'amount': new __WEBPACK_IMPORTED_MODULE_1__angular_forms__["b" /* FormControl */]('', __WEBPACK_IMPORTED_MODULE_1__angular_forms__["g" /* Validators */].required)
+            'to_trailer_id': new __WEBPACK_IMPORTED_MODULE_1__angular_forms__["b" /* FormControl */]('', __WEBPACK_IMPORTED_MODULE_1__angular_forms__["g" /* Validators */].required)
         });
         this.events.subscribe('tanks:loaded', event => this.populateTanks(event));
         this.populateTanks(null);
@@ -1917,6 +1702,31 @@ let CreateTankToTankPage = class CreateTankToTankPage {
             console.log('[CreateTankToTankPage] - constructor() :: trailer_id: ', trailer_id);
             this.tankToTankForm.patchValue({ from_trailer_id: trailer_id });
         });
+        this.onMeterData = (responses) => {
+            this._onMeterData(responses);
+        };
+        this.onMeterComplete = () => {
+            this._onMeterComplete();
+        };
+        this.onMeterListing = (event) => {
+            this.loader.setContent('Listing meters.');
+        };
+        this.onMeterListingSelect = (event) => {
+            this.loader.dismiss();
+        };
+        this.onMeterListingSelected = (event) => {
+            this.loader.present();
+            this.loader.setContent('Meter Selected.');
+        };
+        this.onMeterConnecting = (event) => {
+            this.loader.setContent('Connecting to meter.');
+        };
+        this.onMeterConnected = (event) => {
+            this.loader.setContent('Connected to meter.');
+        };
+        this.onMeterReading = (event) => {
+            this.loader.setContent('Reading data.');
+        };
     }
     populateTanks(events) {
         console.log(`[CreateTankToTankPage] - populateTanks() :: Attempt to load tanks from cache, with mode ${events}`);
@@ -1937,6 +1747,62 @@ let CreateTankToTankPage = class CreateTankToTankPage {
         console.log('[CreateTankToTankPage] - openSettings()');
         this.events.publish('settings:open', event);
     }
+    readMeter(event) {
+        console.log('[CreateTransactionPage] - readMeter() :: ');
+        this.events.subscribe('meter:listing', this.onMeterListing);
+        this.events.subscribe('meter:listingselect', this.onMeterListingSelect);
+        this.events.subscribe('meter:connecting', this.onMeterConnecting);
+        this.events.subscribe('meter:connected', this.onMeterConnected);
+        this.events.subscribe('meter:reading', this.onMeterReading);
+        this.events.subscribe('meter:complete', this.onMeterComplete);
+        this.events.subscribe('meter:data', this.onMeterData);
+        this.loader = this.loadingController.create({ content: "Contacting meter." });
+        this.loader.present();
+        this.bluetoothService.list();
+    }
+    _onMeterComplete() {
+        //this.events.unsubscribe('meter:complete',   this.onMeterComplete);
+        this.loader.dismiss();
+    }
+    _onMeterData(responses) {
+        console.log('[CreateTransactionPage] - _onMeterData() :: ', responses);
+        // Unsubscribe of further BT data until the Read button pushed again
+        this.events.unsubscribe('meter:data', this.onMeterData);
+        this.events.unsubscribe('meter:listing', this.onMeterListing);
+        this.events.unsubscribe('meter:connecting', this.onMeterConnecting);
+        this.events.unsubscribe('meter:connected', this.onMeterConnected);
+        this.events.unsubscribe('meter:reading', this.onMeterReading);
+        // Grab the last response, which is the current one, and write it to the UI
+        let response = responses.pop();
+        if (!response) {
+            console.warn('[CreateTransactionPage] - _onMeterData() :: Received empty response, exiting.', response);
+            return;
+        }
+        this.zone.run(() => {
+            let amount = (response.getData().endVolume - response.getData().startVolume);
+            //this.tankToTankForm.patchValue({ from_trailer_id:               response.getData().meterID });
+            this.tankToTankForm.patchValue({ amount: amount });
+        });
+        // The rest should be stored and uploaded to the API in the background, with blanking out data we don't know
+        responses.forEach(element => {
+            console.log('[CreateTransactionPage] - _onMeterData() :: Got BT data to upload in the background');
+            let transaction = {
+                pad_id: '-1',
+                operator_id: this.operator.operator_id,
+                battery_percentage: '-1',
+                long: -1,
+                lat: -1,
+                transaction_end_date: element.getData().endDateTime,
+                end_total_value: element.getData().endVolume,
+                end_value: element.getData().startVolume,
+                plant_id: null,
+                trailer_id: response.getData().meterID,
+                odometer: '-1'
+            };
+            this.transactionService.create(transaction);
+        });
+        this.onSubmit(this.tankToTankForm.value);
+    }
     onSubmit(data) {
         console.log('[CreateTankToTankPage] - onSubmit() :: Attempt to create TankToTank from data ', data);
         let refill = {
@@ -1955,9 +1821,8 @@ let CreateTankToTankPage = class CreateTankToTankPage {
             this.tankToTankForm.patchValue({ to_trailer_id: null });
             this.tankToTankForm.patchValue({ amount: null });
         }).catch((e) => {
-            alert("in catch");
-            alert(e);
-            alert(JSON.stringify(e));
+            //alert(e);
+            //alert(JSON.stringify(e));	
             let toast = this.toastController.create({
                 message: 'Error saving transaction!',
                 duration: 2000,
@@ -1966,12 +1831,24 @@ let CreateTankToTankPage = class CreateTankToTankPage {
             toast.present();
         });
     }
+    getGPS() {
+        let location_request = __WEBPACK_IMPORTED_MODULE_10_ionic_native__["b" /* Geolocation */].getCurrentPosition({ timeout: 10000 });
+        location_request.then((response) => {
+            let res = JSON.stringify(response);
+            console.log(response);
+        }, (failure) => {
+            console.log(failure);
+            let fail = JSON.stringify(failure);
+        }).catch((e) => {
+            console.log(e);
+        });
+    }
 };
 CreateTankToTankPage = __decorate([
     Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["u" /* Component */])({
-        selector: 'page-tanktotank',template:/*ion-inline-start:"D:\Taylor\Documents\Websites\fuelit\fuelit-aeroworks\src\pages\tanktotank\create.html"*/'<ion-header>\n    <ion-toolbar   color="primary">\n        <ion-title>Tank To Tank Transaction</ion-title>\n        <ion-buttons end>\n            <button royal (click)="openSettings($event)" ion-button>\n                <ion-icon name="more"></ion-icon>\n            </button>\n        </ion-buttons>\n    </ion-toolbar>\n</ion-header>\n\n<ion-content padding class="form">\n    <ion-list>\n\n        <form [formGroup]="tankToTankForm" (ngSubmit)="onSubmit(tankToTankForm.value)">\n               \n\n            <ion-item>\n                <ion-label floating>From Tank</ion-label>\n                <ion-select formControlName="from_trailer_id">\n                    <ion-option *ngFor="let tank of tanks" value="{{tank.trailer_id}}">{{tank.trailer_name}}</ion-option>\n                </ion-select>\n            </ion-item>\n\n            <ion-item>\n                <ion-label floating>To Tank</ion-label>\n                <ion-select formControlName="to_trailer_id">\n                    <ion-option *ngFor="let tank of tanks" value="{{tank.trailer_id}}">{{tank.trailer_name}}</ion-option>\n                </ion-select>\n            </ion-item>            \n            \n            \n            <ion-item>\n                <ion-label>Amount (L)</ion-label>\n                <ion-input type="number" formControlName="amount"></ion-input>\n            </ion-item>\n\n            <ion-item>\n                <button type="submit" block [disabled]="!tankToTankForm.valid" ion-button>Refill Complete</button>\n            </ion-item>\n        </form>\n\n    </ion-list>\n</ion-content>\n'/*ion-inline-end:"D:\Taylor\Documents\Websites\fuelit\fuelit-aeroworks\src\pages\tanktotank\create.html"*/
+        selector: 'page-tanktotank',template:/*ion-inline-start:"D:\Taylor\Documents\Websites\fuelit\fuelit-aeroworks\src\pages\tanktotank\create.html"*/'<ion-header>\n    <ion-toolbar   color="primary">\n        <ion-title>Tank To Tank Transaction</ion-title>\n        <ion-buttons end>\n            <button royal (click)="openSettings($event)" ion-button>\n                <ion-icon name="more"></ion-icon>\n            </button>\n        </ion-buttons>\n    </ion-toolbar>\n</ion-header>\n\n<ion-content padding class="form">\n    <ion-list>\n\n        <form [formGroup]="tankToTankForm" (ngSubmit)="onSubmit(tankToTankForm.value)">\n               \n\n            <ion-item>\n                <ion-label floating>From Tank</ion-label>\n                <ion-select formControlName="from_trailer_id">\n                    <ion-option *ngFor="let tank of tanks" value="{{tank.trailer_id}}">{{tank.trailer_name}}</ion-option>\n                </ion-select>\n            </ion-item>\n\n            <ion-item>\n                <ion-label floating>To Tank</ion-label>\n                <ion-select formControlName="to_trailer_id">\n                    <ion-option *ngFor="let tank of tanks" value="{{tank.trailer_id}}">{{tank.trailer_name}}</ion-option>\n                </ion-select>\n            </ion-item>            \n            \n            \n            <ion-item>\n                <ion-label>Amount (L)</ion-label>\n                <ion-input type="number" formControlName="amount" readonly="true"></ion-input>\n            </ion-item>\n\n\n            <ion-item>\n                <button ion-button outline item-right (click)="readMeter($event)"  block [disabled]="!tankToTankForm.valid" type="button">Transfer Completed</button>\n            </ion-item>            \n            \n            \n        </form>\n\n    </ion-list>\n</ion-content>\n'/*ion-inline-end:"D:\Taylor\Documents\Websites\fuelit\fuelit-aeroworks\src\pages\tanktotank\create.html"*/
     }), 
-    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_2_ionic_angular__["b" /* Events */], __WEBPACK_IMPORTED_MODULE_1__angular_forms__["a" /* FormBuilder */], __WEBPACK_IMPORTED_MODULE_2_ionic_angular__["i" /* ToastController */], __WEBPACK_IMPORTED_MODULE_3__providers_tank_service__["a" /* TankService */], __WEBPACK_IMPORTED_MODULE_4__providers_operator_service__["a" /* OperatorService */], __WEBPACK_IMPORTED_MODULE_5__providers_transaction_service__["a" /* TransactionService */], __WEBPACK_IMPORTED_MODULE_6__providers_configuration_service__["a" /* ConfigurationService */]])
+    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_1__angular_forms__["a" /* FormBuilder */], __WEBPACK_IMPORTED_MODULE_2_ionic_angular__["e" /* LoadingController */], __WEBPACK_IMPORTED_MODULE_2_ionic_angular__["i" /* ToastController */], __WEBPACK_IMPORTED_MODULE_6__providers_configuration_service__["a" /* ConfigurationService */], __WEBPACK_IMPORTED_MODULE_7__providers_plant_service__["a" /* PlantService */], __WEBPACK_IMPORTED_MODULE_3__providers_tank_service__["a" /* TankService */], __WEBPACK_IMPORTED_MODULE_5__providers_transaction_service__["a" /* TransactionService */], __WEBPACK_IMPORTED_MODULE_4__providers_operator_service__["a" /* OperatorService */], __WEBPACK_IMPORTED_MODULE_8__providers_timesheet_service__["a" /* TimesheetService */], __WEBPACK_IMPORTED_MODULE_9__providers_bluetooth_service__["a" /* BluetoothService */], __WEBPACK_IMPORTED_MODULE_2_ionic_angular__["b" /* Events */], __WEBPACK_IMPORTED_MODULE_0__angular_core__["S" /* NgZone */]])
 ], CreateTankToTankPage);
 //# sourceMappingURL=tanktotank.js.map
 
@@ -2086,7 +1963,7 @@ Config = __decorate([
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ConfigurationService; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ionic_storage__ = __webpack_require__(186);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ionic_storage__ = __webpack_require__(187);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map__ = __webpack_require__(72);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_map__);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -2149,10 +2026,10 @@ ConfigurationService = __decorate([
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return AppModule; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_http__ = __webpack_require__(37);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ionic_storage__ = __webpack_require__(186);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_http__ = __webpack_require__(38);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ionic_storage__ = __webpack_require__(187);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ionic_angular__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_ionic_native__ = __webpack_require__(41);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_ionic_native__ = __webpack_require__(36);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__app_component__ = __webpack_require__(641);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__pages_login_login__ = __webpack_require__(489);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__pages_settings_settings__ = __webpack_require__(495);
@@ -2165,13 +2042,13 @@ ConfigurationService = __decorate([
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__config__ = __webpack_require__(51);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__providers_configuration_service__ = __webpack_require__(59);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__providers_operator_service__ = __webpack_require__(61);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__providers_plant_service__ = __webpack_require__(131);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__providers_tank_service__ = __webpack_require__(135);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_19__providers_timesheet_service__ = __webpack_require__(133);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__providers_plant_service__ = __webpack_require__(93);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__providers_tank_service__ = __webpack_require__(136);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_19__providers_timesheet_service__ = __webpack_require__(94);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_20__providers_dipreading_service__ = __webpack_require__(226);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_21__providers_transaction_service__ = __webpack_require__(132);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_21__providers_transaction_service__ = __webpack_require__(133);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_22__providers_sql_service__ = __webpack_require__(60);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_23__providers_bluetooth_service__ = __webpack_require__(225);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_23__providers_bluetooth_service__ = __webpack_require__(134);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_24__providers_rollbar_service__ = __webpack_require__(644);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -2272,8 +2149,8 @@ AppModule = __decorate([
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__ = __webpack_require__(72);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(37);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ionic_native__ = __webpack_require__(41);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(38);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ionic_native__ = __webpack_require__(36);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__config__ = __webpack_require__(51);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -2343,10 +2220,10 @@ SqlService = __decorate([
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return OperatorService; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__ = __webpack_require__(224);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__ = __webpack_require__(225);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(37);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(38);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__sql_service__ = __webpack_require__(60);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__config__ = __webpack_require__(51);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -2450,17 +2327,17 @@ OperatorService = __decorate([
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return FuelITApp; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_native__ = __webpack_require__(41);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_native__ = __webpack_require__(36);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__pages_login_login__ = __webpack_require__(489);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__pages_settings_settings__ = __webpack_require__(495);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_plant_service__ = __webpack_require__(131);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__providers_plant_service__ = __webpack_require__(93);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__providers_operator_service__ = __webpack_require__(61);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__providers_configuration_service__ = __webpack_require__(59);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__providers_transaction_service__ = __webpack_require__(132);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__providers_tank_service__ = __webpack_require__(135);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__providers_timesheet_service__ = __webpack_require__(133);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__providers_transaction_service__ = __webpack_require__(133);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__providers_tank_service__ = __webpack_require__(136);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__providers_timesheet_service__ = __webpack_require__(94);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__providers_dipreading_service__ = __webpack_require__(226);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__providers_bluetooth_service__ = __webpack_require__(225);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__providers_bluetooth_service__ = __webpack_require__(134);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -2684,6 +2561,235 @@ RollbarErrorHandler = __decorate([
     __metadata('design:paramtypes', [])
 ], RollbarErrorHandler);
 //# sourceMappingURL=rollbar-service.js.map
+
+/***/ }),
+
+/***/ 93:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return PlantService; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__ = __webpack_require__(225);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_toPromise__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(38);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ionic_angular__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__config__ = __webpack_require__(51);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__sql_service__ = __webpack_require__(60);
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments)).next());
+    });
+};
+
+
+
+
+
+
+let PlantService = class PlantService {
+    constructor(http, configuration, storage, events) {
+        this.in_progress = false;
+        console.log('[PlantService] - constructor() :: ');
+        this.http = http;
+        this.configuration = configuration;
+        this.storage = storage;
+        this.events = events;
+    }
+    init() {
+        console.log('[PlantService] - init() :: Preparing database table');
+        return this.storage.executeSql('CREATE TABLE IF NOT EXISTS plants (id INTEGER PRIMARY KEY, plant_id INTEGER, plant_no INTEGER, tail_no TEXT)');
+    }
+    load() {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('[PlantService] - load() :: Loading plants from the API');
+            if (this.in_progress) {
+                console.log('[PlantService] - load() :: Loading is already in progress, exit.');
+                return null;
+            }
+            this.in_progress = true;
+            let result = yield this.http
+                .get(`${this.configuration.API_ENDPOINT}/plants-dep/${this.configuration.DEPARTMENT_ID}`)
+                .toPromise();
+            console.log('[PlantService] - load() :: Plants loaded from the API.');
+            console.log('[PlantService] - load() :: Deleting plants from the cache.');
+            yield this.deleteAll();
+            console.log('[PlantService] - load() :: Plants deleted from the cache.');
+            console.log('[PlantService] - load() :: Creating plants in the cache.');
+            let promises = result.json().Plant.map((item) => __awaiter(this, void 0, void 0, function* () {
+                // console.log('[PlantService] - load() :: Creating plant in the cache.', item);
+                yield this.create(item);
+            }));
+            console.info('[PlantService] - load() :: Plants loaded from the API and cached.');
+            this.events.publish('plants:loaded');
+            console.info('[PlantService] - load() :: Event "plants:loaded" published.');
+            this.in_progress = false;
+            return Promise.all(promises);
+        });
+    }
+    findAll() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let query = 'SELECT plant_id, plant_no, tail_no FROM plants';
+            return this.storage.executeSql(query);
+        });
+    }
+    find(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let query = 'SELECT plant_id, plant_no, tail_no FROM plants WHERE plant_id = (?)';
+            return this.storage.executeSql(query, [id]);
+        });
+    }
+    deleteAll() {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('[PlantService] - deleteAll() :: Deleting plants from the cache.');
+            return Promise.all([
+                this.storage.executeSql('DELETE FROM plants'),
+                this.storage.executeSql('DELETE FROM SQLITE_SEQUENCE WHERE name="plants"')
+            ]);
+        });
+    }
+    create(plant) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let query = 'INSERT INTO plants (plant_id, plant_no, tail_no) VALUES (?, ?, ?)';
+            return this.storage.executeSql(query, [plant.plant_id, plant.plant_no, plant.tail_no]);
+        });
+    }
+};
+PlantService = __decorate([
+    Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["I" /* Injectable */])(), 
+    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_2__angular_http__["a" /* Http */], __WEBPACK_IMPORTED_MODULE_4__config__["a" /* Config */], __WEBPACK_IMPORTED_MODULE_5__sql_service__["a" /* SqlService */], __WEBPACK_IMPORTED_MODULE_3_ionic_angular__["b" /* Events */]])
+], PlantService);
+//# sourceMappingURL=plant-service.js.map
+
+/***/ }),
+
+/***/ 94:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return TimesheetService; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__ = __webpack_require__(72);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_map__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_http__ = __webpack_require__(38);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_common__ = __webpack_require__(66);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__sql_service__ = __webpack_require__(60);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__config__ = __webpack_require__(51);
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments)).next());
+    });
+};
+
+
+
+
+
+
+let TimesheetService = class TimesheetService {
+    constructor(http, configuration, storage) {
+        console.log('[TimesheetService] - constructor() :: ');
+        this.http = http;
+        this.configuration = configuration;
+        this.storage = storage;
+    }
+    init() {
+        console.log('[TimesheetService] - init() :: Preparing database table');
+        return this.storage.executeSql(`CREATE TABLE IF NOT EXISTS timesheets (
+      timesheet_id INTEGER PRIMARY KEY AUTOINCREMENT,
+      operator_id INTEGER, 
+      plant_id INTEGER, 
+      start_date TEXT,
+      end_date TEXT, 
+      start_hours TEXT, 
+      end_hours TEXT, 
+      synced_at TEXT
+    )`);
+    }
+    create(data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('[TimesheetService] - create() :: Creating timesheet in the cache:', data);
+            let insert_query = 'INSERT INTO timesheets (operator_id, plant_id, start_date, end_date, start_hours, end_hours) VALUES (?, ?, ?, ?, ?, ?)';
+            let result = yield this.storage.executeSql(insert_query, [
+                data.operator_id,
+                data.plant_id,
+                data.start_date,
+                data.end_date,
+                data.start_hours,
+                data.end_hours
+            ]);
+            console.log('[TimesheetService] - create() :: Timesheet created in the cache:', result.res.insertId);
+            try {
+                console.log('[TimesheetService] - create() :: Creating timesheetService in the API:', result);
+                data.timesheet_id = result.res.insertId;
+                let api_result = yield this.http
+                    .post(this.configuration.API_ENDPOINT + '/air-trans/', data)
+                    .toPromise();
+                console.log('[TimesheetService] - create() :: Timesheet created in the API:', api_result);
+                console.log('[TimesheetService] - create() :: Updating timesheet in the cache as synced:', api_result);
+                let update_query = `UPDATE timesheets SET synced_at = (?) WHERE timesheet_id = (?)`;
+                let datePipe = new __WEBPACK_IMPORTED_MODULE_3__angular_common__["c" /* DatePipe */](this.configuration.LOCALE);
+                result = yield this.storage.executeSql(update_query, [
+                    datePipe.transform(Date.now(), 'y-MM-dd HH:mm:ss'),
+                    data.timesheet_id
+                ]);
+                console.log('[TimesheetService] - create() :: Timesheet updated in the cache as synced:', result);
+                console.info('[TimesheetService] - create() :: Timesheet uploaded and marked as synced');
+            }
+            catch (exception) {
+                console.warn('[TimesheetService] - create() :: Failed to create timesheet in the API:', data, exception);
+            }
+            return result;
+        });
+    }
+    upload() {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('[TimesheetService] - upload() :: Finding non-synced timesheets');
+            let select_query = 'SELECT timesheet_id, operator_id, plant_id, start_date, end_date, start_hours, end_hours, synced_at FROM timesheets WHERE synced_at IS NULL';
+            let timesheets = yield this.storage.executeSql(select_query);
+            console.log('[TimesheetService] - upload() :: Found non-synced timesheets:', timesheets.res.rows.length);
+            let promises = Array.from(timesheets.res.rows).map((timesheet) => __awaiter(this, void 0, void 0, function* () {
+                console.log('[TimesheetService] - upload() :: Updating non-synced timesheet', timesheet);
+                yield this.http
+                    .post(this.configuration.API_ENDPOINT + '/air-trans/', timesheet)
+                    .toPromise();
+                let update_query = 'UPDATE timesheets SET synced_at = (?) WHERE timesheet_id = (?)';
+                let datePipe = new __WEBPACK_IMPORTED_MODULE_3__angular_common__["c" /* DatePipe */](this.configuration.LOCALE);
+                return yield this.storage.executeSql(update_query, [datePipe.transform(Date.now(), 'y-MM-dd HH:mm:ss'), timesheet.timesheet_id]);
+            }));
+            return Promise.all(promises);
+        });
+    }
+};
+TimesheetService = __decorate([
+    Object(__WEBPACK_IMPORTED_MODULE_1__angular_core__["I" /* Injectable */])(), 
+    __metadata('design:paramtypes', [__WEBPACK_IMPORTED_MODULE_2__angular_http__["a" /* Http */], __WEBPACK_IMPORTED_MODULE_5__config__["a" /* Config */], __WEBPACK_IMPORTED_MODULE_4__sql_service__["a" /* SqlService */]])
+], TimesheetService);
+//# sourceMappingURL=timesheet-service.js.map
 
 /***/ })
 
