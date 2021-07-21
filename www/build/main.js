@@ -2392,16 +2392,7 @@ let FuelITApp = class FuelITApp {
             this.settings(event);
         });
         platform.ready().then(() => {
-            if (platform.is("android")) {
-                //this.statusBar.backgroundColorByHexString("#952517");
-                //this.statusBar.styleLightContent();
-                __WEBPACK_IMPORTED_MODULE_2_ionic_native__["g" /* StatusBar */].styleDefault();
-            }
-            else {
-                __WEBPACK_IMPORTED_MODULE_2_ionic_native__["g" /* StatusBar */].styleLightContent();
-            }
             __WEBPACK_IMPORTED_MODULE_2_ionic_native__["f" /* Splashscreen */].hide();
-            __WEBPACK_IMPORTED_MODULE_2_ionic_native__["d" /* Rollbar */].init();
             console.log('[FuelITApp] - constructor() :: Detecting platforms:', platform.platforms());
             console.log('[FuelITApp] - constructor() :: Preparing services.');
             Promise.all([
@@ -2427,6 +2418,15 @@ let FuelITApp = class FuelITApp {
             __WEBPACK_IMPORTED_MODULE_2_ionic_native__["c" /* Network */].onDisconnect().subscribe(() => {
                 this.onNetworkDisconnected();
             });
+            if (platform.is("android")) {
+                //this.statusBar.backgroundColorByHexString("#952517");
+                //this.statusBar.styleLightContent();
+                __WEBPACK_IMPORTED_MODULE_2_ionic_native__["g" /* StatusBar */].styleDefault();
+            }
+            else {
+                __WEBPACK_IMPORTED_MODULE_2_ionic_native__["g" /* StatusBar */].styleLightContent();
+            }
+            __WEBPACK_IMPORTED_MODULE_2_ionic_native__["d" /* Rollbar */].init();
         });
     }
     onNetworkConnected() {
@@ -2553,7 +2553,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 let RollbarErrorHandler = class RollbarErrorHandler {
     handleError(err) {
         console.error(err);
-        throw Error(err);
+        //throw Error(err);
     }
 };
 RollbarErrorHandler = __decorate([
