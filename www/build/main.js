@@ -2381,6 +2381,7 @@ let FuelITApp = class FuelITApp {
         this.configurationService = configurationService;
         this.bluetoothService = bluetoothService;
         this.events = events;
+        alert("App loaded");
         this.rootPage = __WEBPACK_IMPORTED_MODULE_3__pages_login_login__["a" /* LoginPage */];
         this.events.subscribe('database:sync', event => {
             this.sync();
@@ -2392,41 +2393,51 @@ let FuelITApp = class FuelITApp {
             this.settings(event);
         });
         platform.ready().then(() => {
-            __WEBPACK_IMPORTED_MODULE_2_ionic_native__["f" /* Splashscreen */].hide();
-            console.log('[FuelITApp] - constructor() :: Detecting platforms:', platform.platforms());
-            console.log('[FuelITApp] - constructor() :: Preparing services.');
-            Promise.all([
-                this.operatorService.init(),
-                this.plantService.init(),
-                this.tankService.init(),
-                this.transactionService.init(),
-                this.timesheetService.init(),
-                this.dipReadingService.init()
-            ]).then(result => {
-                console.log('[FuelITApp] - constructor() :: Services prepared.');
-                this.sync();
-            });
-            platform.pause.subscribe(() => {
-                console.log('[FuelITApp] - constructor() :: App paused');
-            });
-            platform.resume.subscribe(() => {
-                console.log('[FuelITApp] - constructor() :: App resumed');
-            });
-            __WEBPACK_IMPORTED_MODULE_2_ionic_native__["c" /* Network */].onConnect().subscribe(() => {
-                this.onNetworkConnected();
-            });
-            __WEBPACK_IMPORTED_MODULE_2_ionic_native__["c" /* Network */].onDisconnect().subscribe(() => {
-                this.onNetworkDisconnected();
-            });
-            if (platform.is("android")) {
-                //this.statusBar.backgroundColorByHexString("#952517");
-                //this.statusBar.styleLightContent();
-                __WEBPACK_IMPORTED_MODULE_2_ionic_native__["g" /* StatusBar */].styleDefault();
+            alert("Platform ready");
+            try {
+                alert("Spalshscreen hide");
+                __WEBPACK_IMPORTED_MODULE_2_ionic_native__["f" /* Splashscreen */].hide();
+                console.log('[FuelITApp] - constructor() :: Detecting platforms:', platform.platforms());
+                console.log('[FuelITApp] - constructor() :: Preparing services.');
+                Promise.all([
+                    this.operatorService.init(),
+                    this.plantService.init(),
+                    this.tankService.init(),
+                    this.transactionService.init(),
+                    this.timesheetService.init(),
+                    this.dipReadingService.init()
+                ]).then(result => {
+                    console.log('[FuelITApp] - constructor() :: Services prepared.');
+                    this.sync();
+                });
+                alert("Init Services");
+                platform.pause.subscribe(() => {
+                    console.log('[FuelITApp] - constructor() :: App paused');
+                });
+                platform.resume.subscribe(() => {
+                    console.log('[FuelITApp] - constructor() :: App resumed');
+                });
+                __WEBPACK_IMPORTED_MODULE_2_ionic_native__["c" /* Network */].onConnect().subscribe(() => {
+                    this.onNetworkConnected();
+                });
+                __WEBPACK_IMPORTED_MODULE_2_ionic_native__["c" /* Network */].onDisconnect().subscribe(() => {
+                    this.onNetworkDisconnected();
+                });
+                alert("Status bar");
+                if (platform.is("android")) {
+                    //this.statusBar.backgroundColorByHexString("#952517");
+                    //this.statusBar.styleLightContent();
+                    __WEBPACK_IMPORTED_MODULE_2_ionic_native__["g" /* StatusBar */].styleDefault();
+                }
+                else {
+                    __WEBPACK_IMPORTED_MODULE_2_ionic_native__["g" /* StatusBar */].styleLightContent();
+                }
+                __WEBPACK_IMPORTED_MODULE_2_ionic_native__["d" /* Rollbar */].init();
             }
-            else {
-                __WEBPACK_IMPORTED_MODULE_2_ionic_native__["g" /* StatusBar */].styleLightContent();
+            catch (error) {
+                alert("Error");
+                alert(JSON.stringify(error));
             }
-            __WEBPACK_IMPORTED_MODULE_2_ionic_native__["d" /* Rollbar */].init();
         });
     }
     onNetworkConnected() {
